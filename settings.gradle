@@ -7,4 +7,4 @@ if (javaVersion < 11) {
 
 rootProject.name = 'bartholdy'
 
-enableFeaturePreview('STABLE_PUBLISHING')
+// enableFeaturePreview('STABLE_PUBLISHING')
