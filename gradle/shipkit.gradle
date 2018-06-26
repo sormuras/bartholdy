@@ -18,7 +18,9 @@ allprojects {
 
                version {
                    mavenCentralSync {
-                       sync = false
+                       sync = true
+                       user = System.getenv('NEXUS_USER')
+                       password = System.getenv('NEXUS_PASS')
                    }
                }
            }
