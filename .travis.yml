@@ -1,5 +1,5 @@
 language: java
-jdk: openjdk-ea
+jdk: openjdk10
 
 branches:
   except:
