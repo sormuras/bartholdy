@@ -10,11 +10,17 @@ allprojects {
            user = System.getenv('BINTRAY_USER')
            key = System.getenv('BINTRAY_KEY')
            pkg {
-               repo = 'maven'
-               name = 'sormuras-bartholdy'
+               repo = 'maven'      // https://bintray.com/sormuras/maven
+               name = 'bartholdy'  // https://bintray.com/sormuras/maven/bartholdy
                licenses = ['Apache-2.0']
                vcsUrl = 'https://github.com/sormuras/bartholdy.git'
-               labels = ['continuous delivery', 'release automation', 'shipkit']
+               labels = ['tooling']
+
+               version {
+                   mavenCentralSync {
+                       sync = false
+                   }
+               }
            }
        }
    }

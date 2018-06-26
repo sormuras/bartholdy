@@ -5,6 +5,6 @@ if (javaVersion < 11) {
             "Currently executing with Java " + javaVersion + ".")
 }
 
-rootProject.name = 'sormuras-bartholdy'
+rootProject.name = 'bartholdy'
 
 enableFeaturePreview('STABLE_PUBLISHING')
