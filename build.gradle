@@ -1,0 +1,37 @@
+plugins {
+    id 'java-library'
+    id 'org.shipkit.java' version '2.0.25'
+}
+
+apply plugin: 'idea'
+
+idea {
+    project {
+        jdkName = '11'
+        languageLevel = '11'
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile "org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}"
+    testRuntime "org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}"
+}
+
+jar {
+    exclude 'LICENSE' // keep root directory "clean", only `module-info.class` is allowed
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+    }
+}
+
+wrapper {
+    gradleVersion = '4.8.1'
+}

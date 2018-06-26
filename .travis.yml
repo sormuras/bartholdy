@@ -1,0 +1,12 @@
+language: java
+jdk: openjdk-ea
+
+branches:
+  except:
+  - /^v\d/
+
+install:
+  - chmod u+x gradlew
+
+script:
+  - ./gradlew build -s && ./gradlew ciPerformRelease
