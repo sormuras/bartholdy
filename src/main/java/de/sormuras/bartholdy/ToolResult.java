@@ -16,10 +16,11 @@
 
 package de.sormuras.bartholdy;
 
+/** Result of a tool run. */
 public interface ToolResult {
 
   static Builder builder() {
-      return new Builder();
+    return new Builder();
   }
 
   int getExitCode();

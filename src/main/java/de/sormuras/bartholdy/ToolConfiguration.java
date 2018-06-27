@@ -18,11 +18,12 @@ package de.sormuras.bartholdy;
 
 import java.util.Objects;
 
+/** Tool configuration providing environment and execution data. */
 public interface ToolConfiguration {
 
- static Builder builder() {
-     return new Builder();
- }
+  static Builder builder() {
+    return new Builder();
+  }
 
   static ToolConfiguration of(Object... args) {
     return builder().setArguments(args).build();
