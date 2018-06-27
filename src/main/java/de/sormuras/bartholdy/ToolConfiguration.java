@@ -18,13 +18,35 @@ package de.sormuras.bartholdy;
 
 import java.util.Objects;
 
-/** Tool interface. */
-public interface Tool {
+public interface ToolConfiguration {
 
-  default int run(Object... args) {
-    Objects.requireNonNull(args, "args must not be null");
-    return run(ToolConfiguration.of(args)).getExitCode();
+ static Builder builder() {
+     return new Builder();
+ }
+
+  static ToolConfiguration of(Object... args) {
+    return builder().setArguments(args).build();
   }
 
-  ToolResult run(ToolConfiguration configuration);
+  Object[] getArguments();
+
+  class Builder implements ToolConfiguration {
+
+    private Object[] arguments;
+
+    ToolConfiguration build() {
+      Objects.requireNonNull(arguments, "arguments must not be null");
+      return this;
+    }
+
+    @Override
+    public Object[] getArguments() {
+      return arguments;
+    }
+
+    public Builder setArguments(Object[] arguments) {
+      this.arguments = arguments;
+      return this;
+    }
+  }
 }

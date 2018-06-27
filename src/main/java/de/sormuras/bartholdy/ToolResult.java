@@ -16,15 +16,25 @@
 
 package de.sormuras.bartholdy;
 
-import java.util.Objects;
+public interface ToolResult {
 
-/** Tool interface. */
-public interface Tool {
-
-  default int run(Object... args) {
-    Objects.requireNonNull(args, "args must not be null");
-    return run(ToolConfiguration.of(args)).getExitCode();
+  static Builder builder() {
+      return new Builder();
   }
 
-  ToolResult run(ToolConfiguration configuration);
+  int getExitCode();
+
+  class Builder implements ToolResult {
+    int exitCode;
+
+    @Override
+    public int getExitCode() {
+      return exitCode;
+    }
+
+    public Builder setExitCode(int exitCode) {
+      this.exitCode = exitCode;
+      return this;
+    }
+  }
 }

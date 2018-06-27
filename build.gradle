@@ -21,6 +21,18 @@ dependencies {
     testRuntime "org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}"
 }
 
+javadoc {
+    options {
+        memberLevel = JavadocMemberLevel.PROTECTED
+        header = project.name
+        use = true
+        addBooleanOption('Xdoclint:html,syntax', true)
+        addBooleanOption('html5', true)
+        encoding = 'UTF-8'
+        noTimestamp = true
+    }
+}
+
 jar {
     exclude 'LICENSE' // keep root directory "clean", only `module-info.class` is allowed
 }
