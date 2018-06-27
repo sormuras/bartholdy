@@ -28,6 +28,10 @@ public interface ToolResult {
   class Builder implements ToolResult {
     int exitCode;
 
+    ToolResult build() {
+      return this;
+    }
+
     @Override
     public int getExitCode() {
       return exitCode;
