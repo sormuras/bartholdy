@@ -16,7 +16,7 @@
 
 package de.sormuras.bartholdy;
 
-import static java.lang.System.Logger.Level.WARNING;
+import static java.lang.System.Logger.Level.DEBUG;
 import static java.util.Objects.requireNonNull;
 
 import java.util.ArrayList;
@@ -86,8 +86,9 @@ public interface Configuration {
       this.arguments.clear();
       for (var argument : arguments) {
         if (argument instanceof Iterable) {
-          logger.log(WARNING, "unrolling iterable argument: " + argument);
+          logger.log(DEBUG, "unrolling iterable argument: " + argument);
           ((Iterable<?>) argument).forEach(this::addArgument);
+          continue;
         }
         addArgument(argument);
       }

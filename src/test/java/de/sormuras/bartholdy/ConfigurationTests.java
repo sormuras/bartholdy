@@ -1,5 +1,6 @@
 package de.sormuras.bartholdy;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -27,6 +28,7 @@ class ConfigurationTests {
     var expected = List.of("a", "11", "NEW");
     var builder = Configuration.builder();
     assertTrue(builder.isMutable());
+    assertDoesNotThrow(builder::checkMutableState);
     builder.setArguments('a');
     builder.getArguments().add(String.valueOf(0xb));
     builder.addArgument(Thread.State.NEW);
@@ -34,6 +36,7 @@ class ConfigurationTests {
 
     var configuration = builder.build();
     assertFalse(builder.isMutable());
+    assertThrows(IllegalStateException.class, builder::checkMutableState);
     assertIterableEquals(expected, configuration.getArguments());
     assertThrows(UnsupportedOperationException.class, () -> configuration.getArguments().clear());
     assertThrows(UnsupportedOperationException.class, () -> configuration.getArguments().add(""));
@@ -43,5 +46,11 @@ class ConfigurationTests {
     assertIterableEquals(expected, second.getArguments());
     second.addArgument("D");
     assertIterableEquals(List.of("a", "11", "NEW", "D"), second.getArguments());
+  }
+
+  @Test
+  void iterableArguments() {
+    var configuration = Configuration.builder().setArguments(List.of(1, 2, 3)).build();
+    assertIterableEquals(List.of("1", "2", "3"), configuration.getArguments());
   }
 }
