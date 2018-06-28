@@ -9,7 +9,7 @@ public class CustomTool implements Tool {
   }
 
   @Override
-  public ToolResult run(ToolConfiguration configuration) {
-    return ToolResult.builder().setExitCode(exitCode);
+  public Result run(Configuration configuration) {
+    return Result.builder().setExitCode(exitCode);
   }
 }

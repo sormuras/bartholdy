@@ -23,8 +23,8 @@ public interface Tool {
 
   default int run(Object... args) {
     Objects.requireNonNull(args, "args must not be null");
-    return run(ToolConfiguration.of(args)).getExitCode();
+    return run(Configuration.of(args)).getExitCode();
   }
 
-  ToolResult run(ToolConfiguration configuration);
+  Result run(Configuration configuration);
 }

@@ -16,37 +16,29 @@
 
 package de.sormuras.bartholdy;
 
-import java.util.Objects;
-
-/** Tool configuration providing environment and execution data. */
-public interface ToolConfiguration {
+/** Result of a tool run. */
+public interface Result {
 
   static Builder builder() {
     return new Builder();
   }
 
-  static ToolConfiguration of(Object... args) {
-    return builder().setArguments(args).build();
-  }
+  int getExitCode();
 
-  Object[] getArguments();
+  class Builder implements Result {
+    int exitCode;
 
-  class Builder implements ToolConfiguration {
-
-    private Object[] arguments;
-
-    ToolConfiguration build() {
-      Objects.requireNonNull(arguments, "arguments must not be null");
+    Result build() {
       return this;
     }
 
     @Override
-    public Object[] getArguments() {
-      return arguments;
+    public int getExitCode() {
+      return exitCode;
     }
 
-    public Builder setArguments(Object[] arguments) {
-      this.arguments = arguments;
+    public Builder setExitCode(int exitCode) {
+      this.exitCode = exitCode;
       return this;
     }
   }
