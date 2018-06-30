@@ -16,6 +16,13 @@
 
 package de.sormuras.bartholdy;
 
+import static java.util.Objects.requireNonNull;
+
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /** Result of a tool run. */
 public interface Result {
 
@@ -25,10 +32,30 @@ public interface Result {
 
   int getExitCode();
 
+  Duration getDuration();
+
+  default String getOutput(String key) {
+    return getOutput(key, "");
+  }
+
+  String getOutput(String key, String defaultValue);
+
+  default List<String> getOutputLines(String key) {
+    var value = getOutput(key, null);
+    if (value == null) {
+      return List.of();
+    }
+    return List.of(value.split("\\R"));
+  }
+
   class Builder implements Result {
-    int exitCode;
+
+    private int exitCode = Integer.MIN_VALUE;
+    private Duration duration = Duration.ZERO;
+    private Map<String, String> lines = new HashMap<>();
 
     Result build() {
+      requireNonNull(duration, "duration must not be null");
       return this;
     }
 
@@ -39,6 +66,26 @@ public interface Result {
 
     public Builder setExitCode(int exitCode) {
       this.exitCode = exitCode;
+      return this;
+    }
+
+    @Override
+    public Duration getDuration() {
+      return duration;
+    }
+
+    public Builder setDuration(Duration duration) {
+      this.duration = duration;
+      return this;
+    }
+
+    @Override
+    public String getOutput(String key, String defaultValue) {
+      return lines.getOrDefault(key, defaultValue);
+    }
+
+    public Builder setOutput(String key, String output) {
+      this.lines.put(key, output);
       return this;
     }
   }
