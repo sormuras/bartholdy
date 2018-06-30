@@ -1,6 +1,6 @@
 plugins {
     id 'java-library'
-    id 'org.shipkit.java' version '2.0.25'
+    id 'org.shipkit.java' version '2.0.26'
     id 'com.github.sherter.google-java-format' version '0.7.1'
 }
 
@@ -48,5 +48,5 @@ test {
 }
 
 wrapper {
-    gradleVersion = '4.7'
+    gradleVersion = '4.8.1'
 }
