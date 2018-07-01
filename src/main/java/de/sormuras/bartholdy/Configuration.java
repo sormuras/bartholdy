@@ -47,7 +47,7 @@ public interface Configuration {
     private boolean mutable = true;
     private List<String> arguments = new ArrayList<>();
 
-    Configuration build() {
+    public Configuration build() {
       mutable = false;
       arguments = List.copyOf(arguments);
       return this;

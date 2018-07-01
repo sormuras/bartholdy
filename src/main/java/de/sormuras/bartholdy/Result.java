@@ -54,7 +54,7 @@ public interface Result {
     private Duration duration = Duration.ZERO;
     private Map<String, String> lines = new HashMap<>();
 
-    Result build() {
+    public Result build() {
       requireNonNull(duration, "duration must not be null");
       return this;
     }
