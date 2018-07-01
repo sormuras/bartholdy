@@ -20,7 +20,9 @@ import static java.lang.System.Logger.Level.DEBUG;
 import static java.util.Objects.requireNonNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /** Tool configuration providing environment and execution data. */
 public interface Configuration {
@@ -35,6 +37,8 @@ public interface Configuration {
 
   List<String> getArguments();
 
+  Map<String, String> getEnvironment();
+
   default Builder toBuilder() {
     var builder = builder();
     builder.setArguments(new ArrayList<>(getArguments()));
@@ -46,6 +50,7 @@ public interface Configuration {
     private final System.Logger logger = System.getLogger(getClass().getCanonicalName());
     private boolean mutable = true;
     private List<String> arguments = new ArrayList<>();
+    private Map<String, String> environment = new HashMap<>();
 
     public Configuration build() {
       mutable = false;
@@ -92,6 +97,16 @@ public interface Configuration {
         }
         addArgument(argument);
       }
+      return this;
+    }
+
+    @Override
+    public Map<String, String> getEnvironment() {
+      return environment;
+    }
+
+    public Builder putEnvironment(String key, String value) {
+      environment.put(key, value);
       return this;
     }
   }
