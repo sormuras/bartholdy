@@ -14,6 +14,16 @@ public class CustomTool implements Tool {
   }
 
   @Override
+  public String getName() {
+    return "Custom Tool";
+  }
+
+  @Override
+  public String getVersion() {
+    return "0x" + Integer.toHexString(exitCode).toUpperCase();
+  }
+
+  @Override
   public Result run(Configuration configuration) {
     var environment = configuration.getEnvironment();
     var exitCode = Integer.valueOf(environment.getOrDefault("exitCode", "" + this.exitCode));

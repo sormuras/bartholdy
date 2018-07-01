@@ -3,4 +3,5 @@ module de.sormuras.bartholdy {
   requires java.compiler;
 
   exports de.sormuras.bartholdy;
+  exports de.sormuras.bartholdy.jdk;
 }

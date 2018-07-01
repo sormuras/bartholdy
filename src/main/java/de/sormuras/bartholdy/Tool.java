@@ -21,6 +21,10 @@ import java.util.Objects;
 /** Tool interface. */
 public interface Tool {
 
+  String getName();
+
+  String getVersion();
+
   default int run(Object... args) {
     Objects.requireNonNull(args, "args must not be null");
     return run(Configuration.of(args)).getExitCode();

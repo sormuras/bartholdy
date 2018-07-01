@@ -8,10 +8,21 @@ import org.junit.jupiter.api.Test;
 
 class CustomToolTests {
 
+  private final CustomTool custom42 = new CustomTool(42);
+
+  @Test
+  void name() {
+    assertEquals("Custom Tool", custom42.getName());
+  }
+
+  @Test
+  void version() {
+    assertEquals("0x2A", custom42.getVersion());
+  }
+
   @Test
   void runWithoutArguments() {
-    var tool = new CustomTool(42);
-    var code = tool.run();
+    var code = custom42.run();
     assertEquals(42, code);
   }
 
@@ -23,8 +34,7 @@ class CustomToolTests {
             .putEnvironment("exitCode", "0")
             .putEnvironment("duration", "1")
             .build();
-    var tool = new CustomTool(42);
-    var result = tool.run(conf);
+    var result = custom42.run(conf);
     assertEquals(0, result.getExitCode());
     assertEquals(Duration.ofNanos(1), result.getDuration());
     assertEquals("put", result.getOutput("out"));
