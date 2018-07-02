@@ -1,5 +1,6 @@
 plugins {
     id 'java-library'
+    id 'com.gradle.build-scan' version '1.14'
     id 'org.shipkit.java' version '2.0.26'
     id 'com.github.sherter.google-java-format' version '0.7.1'
 }
@@ -45,6 +46,11 @@ test {
     testLogging {
         events 'passed', 'skipped', 'failed'
     }
+}
+
+buildScan {
+    termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+    termsOfServiceAgree = 'yes'
 }
 
 wrapper {
