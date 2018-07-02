@@ -1,4 +1,4 @@
-package de.sormuras.bartholdy.custom;
+package integration;
 
 import de.sormuras.bartholdy.Configuration;
 import de.sormuras.bartholdy.Result;

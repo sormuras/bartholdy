@@ -1,4 +1,4 @@
-package de.sormuras.bartholdy.custom;
+package integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
