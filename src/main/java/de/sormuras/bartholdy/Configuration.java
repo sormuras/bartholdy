@@ -40,9 +40,9 @@ public interface Configuration {
   Map<String, String> getEnvironment();
 
   default Builder toBuilder() {
-    var builder = builder();
-    builder.setArguments(new ArrayList<>(getArguments()));
-    return builder;
+    return builder()
+        .setArguments(new ArrayList<>(getArguments()))
+        .setEnvironment(new HashMap<>(getEnvironment()));
   }
 
   class Builder implements Configuration {
@@ -55,6 +55,7 @@ public interface Configuration {
     public Configuration build() {
       mutable = false;
       arguments = List.copyOf(arguments);
+      environment = Map.copyOf(environment);
       return this;
     }
 
@@ -105,7 +106,14 @@ public interface Configuration {
       return environment;
     }
 
+    Builder setEnvironment(Map<String, String> environment) {
+      checkMutableState();
+      this.environment = environment;
+      return this;
+    }
+
     public Builder putEnvironment(String key, String value) {
+      checkMutableState();
       environment.put(key, value);
       return this;
     }
