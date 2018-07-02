@@ -19,6 +19,8 @@ package de.sormuras.bartholdy;
 import static java.lang.System.Logger.Level.DEBUG;
 import static java.util.Objects.requireNonNull;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,6 +41,10 @@ public interface Configuration {
 
   Map<String, String> getEnvironment();
 
+  Path getTemporaryDirectory();
+
+  Path getWorkingDirectory();
+
   default Builder toBuilder() {
     return builder()
         .setArguments(new ArrayList<>(getArguments()))
@@ -51,6 +57,8 @@ public interface Configuration {
     private boolean mutable = true;
     private List<String> arguments = new ArrayList<>();
     private Map<String, String> environment = new HashMap<>();
+    private Path temporaryDirectory = Paths.get(System.getProperty("java.io.tmpdir"));
+    private Path workingDirectory = Paths.get(".").normalize().toAbsolutePath();
 
     public Configuration build() {
       mutable = false;
@@ -114,7 +122,33 @@ public interface Configuration {
 
     public Builder putEnvironment(String key, String value) {
       checkMutableState();
+      requireNonNull(key, "key must not be null");
+      requireNonNull(value, "value must not be null");
       environment.put(key, value);
+      return this;
+    }
+
+    @Override
+    public Path getTemporaryDirectory() {
+      return temporaryDirectory;
+    }
+
+    public Builder setTemporaryDirectory(Path temporaryDirectory) {
+      checkMutableState();
+      requireNonNull(temporaryDirectory, "temporaryDirectory must not be null");
+      this.temporaryDirectory = temporaryDirectory;
+      return this;
+    }
+
+    @Override
+    public Path getWorkingDirectory() {
+      return workingDirectory;
+    }
+
+    public Builder setWorkingDirectory(Path workingDirectory) {
+      checkMutableState();
+      requireNonNull(workingDirectory, "workingDirectory must not be null");
+      this.workingDirectory = workingDirectory;
       return this;
     }
   }
