@@ -45,6 +45,8 @@ public interface Configuration {
 
   Path getWorkingDirectory();
 
+  long getTimeoutMillis();
+
   default Builder toBuilder() {
     return builder()
         .setArguments(new ArrayList<>(getArguments()))
@@ -59,6 +61,7 @@ public interface Configuration {
     private Map<String, String> environment = new HashMap<>();
     private Path temporaryDirectory = Paths.get(System.getProperty("java.io.tmpdir"));
     private Path workingDirectory = Paths.get(".").normalize().toAbsolutePath();
+    private long timeoutMillis = 10000;
 
     public Configuration build() {
       mutable = false;
@@ -149,6 +152,16 @@ public interface Configuration {
       checkMutableState();
       requireNonNull(workingDirectory, "workingDirectory must not be null");
       this.workingDirectory = workingDirectory;
+      return this;
+    }
+
+    @Override
+    public long getTimeoutMillis() {
+      return timeoutMillis;
+    }
+
+    public Builder setTimeoutMillis(long timeoutMillis) {
+      this.timeoutMillis = timeoutMillis;
       return this;
     }
   }

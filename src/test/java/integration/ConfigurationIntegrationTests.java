@@ -1,5 +1,6 @@
 package integration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -45,5 +46,12 @@ class ConfigurationIntegrationTests {
     var expected = Paths.get("expected");
     var configuration = Configuration.builder().setWorkingDirectory(expected).build();
     assertSame(expected, configuration.getWorkingDirectory());
+  }
+
+  @Test
+  void timeoutMillis() {
+    var expected = 12345L;
+    var configuration = Configuration.builder().setTimeoutMillis(expected).build();
+    assertEquals(expected, configuration.getTimeoutMillis());
   }
 }

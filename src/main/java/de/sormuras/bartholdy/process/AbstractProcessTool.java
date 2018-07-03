@@ -15,8 +15,9 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.concurrent.TimeUnit;
 
-abstract class AbstractProcessTool implements Tool {
+public abstract class AbstractProcessTool implements Tool {
 
   @Override
   public Result run(Configuration configuration) {
@@ -27,16 +28,23 @@ abstract class AbstractProcessTool implements Tool {
     builder.environment().putAll(configuration.getEnvironment());
     try {
       var process = builder.start();
-      var out = read(process.getInputStream());
-      var err = read(process.getErrorStream());
-      var exitCode = process.waitFor();
-      process.destroy();
-      return Result.builder()
-          .setExitCode(exitCode)
-          .setOutput("out", out)
-          .setOutput("err", err)
-          .build();
-    } catch (IOException | InterruptedException e) {
+      try (var inputStream = process.getInputStream();
+          var errorStream = process.getErrorStream()) {
+        var out = read(inputStream);
+        var err = read(errorStream);
+        var ok = process.waitFor(configuration.getTimeoutMillis(), TimeUnit.MILLISECONDS);
+        var exitCode = ok ? process.exitValue() : Integer.MAX_VALUE;
+        return Result.builder()
+            .setExitCode(exitCode)
+            .setOutput("out", out)
+            .setOutput("err", err)
+            .build();
+      } catch (InterruptedException e) {
+        throw new RuntimeException("run failed", e);
+      } finally {
+        process.destroy();
+      }
+    } catch (IOException e) {
       throw new RuntimeException("run failed", e);
     }
   }
