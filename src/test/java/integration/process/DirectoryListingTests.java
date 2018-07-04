@@ -2,6 +2,7 @@ package integration.process;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertLinesMatch;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import de.sormuras.bartholdy.Configuration;
 import de.sormuras.bartholdy.process.AbstractProcessTool;
@@ -40,8 +41,7 @@ class DirectoryListingTests {
     var result = tool.run(Configuration.of("-c", "ls", "-l"));
     assertEquals(0, result.getExitCode(), result.toString());
     assertEquals("", result.getOutput("err"));
-    var expectedLines = List.of(">> header >>", ".+README\\.md.*", ">> footer >>");
-    assertLinesMatch(expectedLines, result.getOutputLines("out"));
+    assertTrue(result.getOutput("out").contains("README.md"));
   }
 
   static class WindowsShellCommand extends AbstractProcessTool {
