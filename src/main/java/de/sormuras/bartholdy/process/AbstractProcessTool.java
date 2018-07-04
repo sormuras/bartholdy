@@ -15,12 +15,16 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public abstract class AbstractProcessTool implements Tool {
 
   @Override
   public Result run(Configuration configuration) {
+    var timeout = configuration.getTimeout().toMillis();
     var command = createCommand(configuration);
     var builder = new ProcessBuilder(command);
     builder.directory(configuration.getWorkingDirectory().toFile());
@@ -28,24 +32,27 @@ public abstract class AbstractProcessTool implements Tool {
     builder.environment().putAll(configuration.getEnvironment());
     try {
       var process = builder.start();
+      var executor = Executors.newScheduledThreadPool(3);
       try (var inputStream = process.getInputStream();
           var errorStream = process.getErrorStream()) {
-        var out = read(inputStream);
-        var err = read(errorStream);
-        var ok = process.waitFor(configuration.getTimeoutMillis(), TimeUnit.MILLISECONDS);
-        var exitCode = ok ? process.exitValue() : Integer.MAX_VALUE;
+        var out = executor.submit(() -> read(inputStream));
+        var err = executor.submit(() -> read(errorStream));
+        executor.schedule(process::destroy, timeout, TimeUnit.MILLISECONDS);
+        process.waitFor();
         return Result.builder()
-            .setExitCode(exitCode)
-            .setOutput("out", out)
-            .setOutput("err", err)
+            .setExitCode(process.exitValue())
+            .setOutput("out", out.get(timeout, TimeUnit.MILLISECONDS))
+            .setOutput("err", err.get(timeout, TimeUnit.MILLISECONDS))
             .build();
-      } catch (InterruptedException e) {
+
+      } catch (InterruptedException | ExecutionException | TimeoutException e) {
         throw new RuntimeException("run failed", e);
       } finally {
         process.destroy();
+        executor.shutdownNow();
       }
     } catch (IOException e) {
-      throw new RuntimeException("run failed", e);
+      throw new UncheckedIOException("starting process failed", e);
     }
   }
 

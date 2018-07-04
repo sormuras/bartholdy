@@ -7,6 +7,7 @@ import de.sormuras.bartholdy.Configuration;
 import de.sormuras.bartholdy.process.AbstractProcessTool;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
@@ -16,12 +17,28 @@ class DirectoryListingTests {
   @EnabledOnOs(OS.WINDOWS)
   void dir() {
     var tool = new WindowsShellCommand();
-    // TODO Configuration.of() ... "hangs" in APT::run() "out = read(inputStream)"
-    // 1. read in parallel
-    // 2. kill if input is required (or send "exit" after timeout?)
-    // https://stackoverflow.com/questions/13008526/runtime-getruntime-execcmd-hanging
-    var result = tool.run(Configuration.of("/C", "dir"));
+    var result = tool.run(Configuration.of("/c", "dir"));
     assertEquals(0, result.getExitCode());
+    assertEquals("", result.getOutput("err"));
+    var expectedLines = List.of(">> header >>", ".+README\\.md.*", ">> footer >>");
+    assertLinesMatch(expectedLines, result.getOutputLines("out"));
+  }
+
+  @Test
+  @EnabledOnOs(OS.WINDOWS)
+  void windowsShellWithoutActualCommandFails() {
+    // Override default 9 seconds timeout for faster test execution.
+    var conf = Configuration.builder().setTimeoutMillis(789);
+    var result = new WindowsShellCommand().run(conf);
+    assertEquals(1, result.getExitCode());
+  }
+
+  @Test
+  @DisabledOnOs(OS.WINDOWS)
+  void ls() {
+    var tool = new ShellCommand();
+    var result = tool.run(Configuration.of("-c", "ls", "-l"));
+    assertEquals(0, result.getExitCode(), result.toString());
     assertEquals("", result.getOutput("err"));
     var expectedLines = List.of(">> header >>", ".+README\\.md.*", ">> footer >>");
     assertLinesMatch(expectedLines, result.getOutputLines("out"));
@@ -42,6 +59,24 @@ class DirectoryListingTests {
     @Override
     protected String createProgram() {
       return "cmd";
+    }
+  }
+
+  static class ShellCommand extends AbstractProcessTool {
+
+    @Override
+    public String getName() {
+      return "sh";
+    }
+
+    @Override
+    public String getVersion() {
+      return System.getProperty("os.name");
+    }
+
+    @Override
+    protected String createProgram() {
+      return "sh";
     }
   }
 }

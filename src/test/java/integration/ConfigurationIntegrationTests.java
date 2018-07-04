@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import de.sormuras.bartholdy.Configuration;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -49,9 +50,15 @@ class ConfigurationIntegrationTests {
   }
 
   @Test
+  void timeout() {
+    var expected = Duration.ZERO;
+    var configuration = Configuration.builder().setTimeout(expected).build();
+    assertSame(Duration.ZERO, configuration.getTimeout());
+  }
+
+  @Test
   void timeoutMillis() {
-    var expected = 12345L;
-    var configuration = Configuration.builder().setTimeoutMillis(expected).build();
-    assertEquals(expected, configuration.getTimeoutMillis());
+    var configuration = Configuration.builder().setTimeoutMillis(12345L).build();
+    assertEquals(Duration.ofMillis(12345L), configuration.getTimeout());
   }
 }

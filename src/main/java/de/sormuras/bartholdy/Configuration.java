@@ -21,6 +21,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,7 +46,7 @@ public interface Configuration {
 
   Path getWorkingDirectory();
 
-  long getTimeoutMillis();
+  Duration getTimeout();
 
   default Builder toBuilder() {
     return builder()
@@ -61,7 +62,7 @@ public interface Configuration {
     private Map<String, String> environment = new HashMap<>();
     private Path temporaryDirectory = Paths.get(System.getProperty("java.io.tmpdir"));
     private Path workingDirectory = Paths.get(".").normalize().toAbsolutePath();
-    private long timeoutMillis = 10000;
+    private Duration timeout = Duration.ofSeconds(9);
 
     public Configuration build() {
       mutable = false;
@@ -156,12 +157,19 @@ public interface Configuration {
     }
 
     @Override
-    public long getTimeoutMillis() {
-      return timeoutMillis;
+    public Duration getTimeout() {
+      return timeout;
     }
 
     public Builder setTimeoutMillis(long timeoutMillis) {
-      this.timeoutMillis = timeoutMillis;
+      setTimeout(Duration.ofMillis(timeoutMillis));
+      return this;
+    }
+
+    public Builder setTimeout(Duration timeout) {
+      checkMutableState();
+      requireNonNull(timeout, "timeout must not be null");
+      this.timeout = timeout;
       return this;
     }
   }
