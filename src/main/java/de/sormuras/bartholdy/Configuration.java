@@ -71,6 +71,22 @@ public interface Configuration {
       return this;
     }
 
+    @Override
+    public String toString() {
+      return "Configuration{"
+          + "arguments="
+          + arguments
+          + ", timeout="
+          + timeout
+          + ", environment="
+          + environment
+          + ", temporaryDirectory="
+          + temporaryDirectory
+          + ", workingDirectory="
+          + workingDirectory
+          + '}';
+    }
+
     void checkMutableState() {
       if (isMutable()) {
         return;

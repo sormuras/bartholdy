@@ -60,6 +60,18 @@ public interface Result {
     }
 
     @Override
+    public String toString() {
+      return "Result{"
+          + "exitCode="
+          + exitCode
+          + ", duration="
+          + duration
+          + ", lines="
+          + lines
+          + '}';
+    }
+
+    @Override
     public int getExitCode() {
       return exitCode;
     }

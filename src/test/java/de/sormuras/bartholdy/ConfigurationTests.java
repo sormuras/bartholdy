@@ -1,12 +1,17 @@
 package de.sormuras.bartholdy;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.assertLinesMatch;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 class ConfigurationTests {
@@ -14,6 +19,29 @@ class ConfigurationTests {
   @Test
   void isInterface() {
     assertTrue(Configuration.class.isInterface());
+  }
+
+  @Test
+  void defaults() {
+    var cfg = Configuration.builder().build();
+    assertEquals(List.of(), cfg.getArguments());
+    assertEquals(Map.of(), cfg.getEnvironment());
+    assertEquals(Duration.ofSeconds(9), cfg.getTimeout());
+    assertEquals(Paths.get(System.getProperty("java.io.tmpdir")), cfg.getTemporaryDirectory());
+    assertEquals(Paths.get(".").normalize().toAbsolutePath(), cfg.getWorkingDirectory());
+  }
+
+  @Test
+  void defaultStringRepresentation() {
+    var expected =
+        "Configuration\\{"
+            + "arguments=\\[], "
+            + "timeout=PT9S, "
+            + "environment=\\{}, "
+            + "temporaryDirectory=.+, "
+            + "workingDirectory=.+"
+            + "}";
+    assertLinesMatch(List.of(expected), List.of(Configuration.builder().build().toString()));
   }
 
   @Test
