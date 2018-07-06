@@ -20,6 +20,12 @@ import java.util.stream.Collectors;
 /** Ant. */
 public class Ant extends AbstractProcessTool {
 
+  private static Path executable(Path home) {
+    var win = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("win");
+    var executable = "ant" + (win ? ".bat" : "");
+    return home.resolve("bin").resolve(executable);
+  }
+
   public static Ant version(Path tools, String version) {
     var zip = String.format("apache-ant-%s-bin.zip", version);
     try {
@@ -44,11 +50,9 @@ public class Ant extends AbstractProcessTool {
       if (Files.notExists(home)) {
         jarTool.run(System.out, System.err, "--extract", "--file", zap.toString());
         Files.move(root, home);
-
         // set executable
         if (FileSystems.getDefault().supportedFileAttributeViews().contains("posix")) {
-          //      var executable = home.resolve(tool.computeExecutablePath());
-          //      executable.toFile().setExecutable(true);
+          executable(home).toFile().setExecutable(true);
         }
       }
 
@@ -100,10 +104,7 @@ public class Ant extends AbstractProcessTool {
 
   @Override
   protected Path createPathToProgram() {
-    var win = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("win");
-    var path = home.resolve("bin");
-    var executable = "ant" + (win ? ".bat" : "");
-    return path.resolve(executable);
+    return executable(home);
   }
 
   @Override
