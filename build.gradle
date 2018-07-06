@@ -27,6 +27,7 @@ dependencies {
 }
 
 javadoc {
+    classpath = project.sourceSets.main.compileClasspath
     options {
         memberLevel = JavadocMemberLevel.PROTECTED
         header = project.name
