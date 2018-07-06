@@ -1,5 +1,7 @@
 package de.sormuras.bartholdy.process;
 
+import java.nio.file.Path;
+
 /**
  * You can use the {@code java} command to launch a Java application.
  *
@@ -8,10 +10,8 @@ package de.sormuras.bartholdy.process;
 public class Java extends AbstractProcessTool {
 
   @Override
-  protected String createProgram() {
-    var path = getCurrentJdkHome().resolve("bin");
-    var executable = path.resolve(getName());
-    return executable.normalize().toAbsolutePath().toString();
+  protected Path getHome() {
+    return getCurrentJdkHome();
   }
 
   @Override
@@ -21,6 +21,6 @@ public class Java extends AbstractProcessTool {
 
   @Override
   public String getVersion() {
-    return "?";
+    return Runtime.version().toString();
   }
 }

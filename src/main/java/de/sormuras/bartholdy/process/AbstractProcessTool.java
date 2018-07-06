@@ -57,7 +57,7 @@ public abstract class AbstractProcessTool implements Tool {
   }
 
   private List<String> createCommand(Configuration configuration) {
-    var program = createProgram();
+    var program = createProgram(createPathToProgram());
     var command = new ArrayList<String>();
     command.add(program);
     command.addAll(configuration.getArguments());
@@ -81,7 +81,17 @@ public abstract class AbstractProcessTool implements Tool {
     }
   }
 
-  protected abstract String createProgram();
+  protected Path getHome() {
+    return Paths.get(".");
+  }
+
+  protected Path createPathToProgram() {
+    return getHome().resolve("bin").resolve(getName());
+  }
+
+  protected String createProgram(Path pathToProgram) {
+    return pathToProgram.normalize().toAbsolutePath().toString();
+  }
 
   private String read(InputStream inputStream) {
     var reader = new BufferedReader(new InputStreamReader(inputStream));

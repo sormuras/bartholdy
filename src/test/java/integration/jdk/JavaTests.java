@@ -18,7 +18,7 @@ class JavaTests {
   @Test
   void version() {
     var tool = new Java();
-    assertEquals("?", tool.getVersion());
+    assertEquals(Runtime.version().toString(), tool.getVersion());
     var result = tool.run(Configuration.of("--version"));
     assertEquals(0, result.getExitCode());
     assertEquals("", result.getOutput("err"));
@@ -65,11 +65,6 @@ class JavaTests {
     @Override
     public String getName() {
       return "broken-java-name";
-    }
-
-    @Override
-    protected String createProgram() {
-      return "broken-java-program";
     }
   }
 }

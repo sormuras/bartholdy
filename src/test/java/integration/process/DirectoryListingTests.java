@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import de.sormuras.bartholdy.Configuration;
 import de.sormuras.bartholdy.process.AbstractProcessTool;
+import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
@@ -57,7 +58,7 @@ class DirectoryListingTests {
     }
 
     @Override
-    protected String createProgram() {
+    protected String createProgram(Path __) {
       return "cmd";
     }
   }
@@ -75,7 +76,7 @@ class DirectoryListingTests {
     }
 
     @Override
-    protected String createProgram() {
+    protected String createProgram(Path __) {
       return "sh";
     }
   }
