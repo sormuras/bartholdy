@@ -4,4 +4,5 @@ module de.sormuras.bartholdy {
 
   exports de.sormuras.bartholdy;
   exports de.sormuras.bartholdy.jdk;
+  exports de.sormuras.bartholdy.tool;
 }

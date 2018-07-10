@@ -1,5 +1,7 @@
-package de.sormuras.bartholdy.process;
+package de.sormuras.bartholdy.tool;
 
+import de.sormuras.bartholdy.AbstractTool;
+import de.sormuras.bartholdy.Bartholdy;
 import java.nio.file.Path;
 
 /**
@@ -7,15 +9,20 @@ import java.nio.file.Path;
  *
  * @see <a href="https://docs.oracle.com/javase/10/tools/java.htm">java</a>
  */
-public class Java extends AbstractProcessTool {
+public class Java extends AbstractTool {
 
   @Override
   protected Path getHome() {
-    return getCurrentJdkHome();
+    return Bartholdy.currentJdkHome();
   }
 
   @Override
   public String getName() {
+    return "java";
+  }
+
+  @Override
+  public final String getProgram() {
     return "java";
   }
 

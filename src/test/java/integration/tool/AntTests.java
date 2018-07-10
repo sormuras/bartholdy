@@ -1,11 +1,12 @@
-package integration.process;
+package integration.tool;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertLinesMatch;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import de.sormuras.bartholdy.Configuration;
-import de.sormuras.bartholdy.process.Ant;
+import de.sormuras.bartholdy.tool.Ant;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -28,8 +29,11 @@ class AntTests {
   }
 
   private void version(String version) {
-    var tool = Ant.version(Paths.get("build", "bartholdy", "tools"), version);
+    var destination = Paths.get("build", "bartholdy", "tools");
+    var tool = Ant.install(version, destination);
     assertTrue(tool.getVersion().contains(version));
+    assertEquals("ant", tool.getName());
+    assertTrue(Files.exists(tool.getHome()));
 
     var result = tool.run(Configuration.of("-version"));
     assertEquals(0, result.getExitCode());

@@ -1,12 +1,6 @@
-package de.sormuras.bartholdy.process;
+package de.sormuras.bartholdy;
 
-import de.sormuras.bartholdy.Configuration;
-import de.sormuras.bartholdy.Result;
-import de.sormuras.bartholdy.Tool;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,13 +8,12 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringJoiner;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public abstract class AbstractProcessTool implements Tool {
+public abstract class AbstractTool implements Tool {
 
   @Override
   public Result run(Configuration configuration) {
@@ -28,15 +21,15 @@ public abstract class AbstractProcessTool implements Tool {
     var command = createCommand(configuration);
     var builder = new ProcessBuilder(command);
     builder.directory(configuration.getWorkingDirectory().toFile());
-    builder.environment().put("JAVA_HOME", getCurrentJdkHome().toString());
+    builder.environment().put("JAVA_HOME", Bartholdy.currentJdkHome().toString());
     builder.environment().putAll(configuration.getEnvironment());
     try {
       var process = builder.start();
       var executor = Executors.newScheduledThreadPool(3);
       try (var inputStream = process.getInputStream();
           var errorStream = process.getErrorStream()) {
-        var out = executor.submit(() -> read(inputStream));
-        var err = executor.submit(() -> read(errorStream));
+        var out = executor.submit(() -> Bartholdy.read(inputStream));
+        var err = executor.submit(() -> Bartholdy.read(errorStream));
         executor.schedule(process::destroy, timeout, TimeUnit.MILLISECONDS);
         process.waitFor();
         return Result.builder()
@@ -60,6 +53,7 @@ public abstract class AbstractProcessTool implements Tool {
     var program = createProgram(createPathToProgram());
     var command = new ArrayList<String>();
     command.add(program);
+    command.addAll(getToolArguments());
     command.addAll(configuration.getArguments());
     var commandLineLength = String.join(" ", command).length();
     if (commandLineLength < 32000) {
@@ -86,23 +80,14 @@ public abstract class AbstractProcessTool implements Tool {
   }
 
   protected Path createPathToProgram() {
-    return getHome().resolve("bin").resolve(getName());
+    return getHome().resolve("bin").resolve(getProgram());
   }
 
   protected String createProgram(Path pathToProgram) {
     return pathToProgram.normalize().toAbsolutePath().toString();
   }
 
-  private String read(InputStream inputStream) {
-    var reader = new BufferedReader(new InputStreamReader(inputStream));
-    var joiner = new StringJoiner(System.lineSeparator());
-    reader.lines().iterator().forEachRemaining(joiner::add);
-    return joiner.toString();
-  }
-
-  static Path getCurrentJdkHome() {
-    Path executable = ProcessHandle.current().info().command().map(Paths::get).orElseThrow();
-    // path element count is 3 or higher: "<JAVA_HOME>/bin/java[.exe]"
-    return executable.getParent().getParent().toAbsolutePath();
+  protected List<String> getToolArguments() {
+    return List.of();
   }
 }

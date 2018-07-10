@@ -1,4 +1,4 @@
-package integration.jdk;
+package integration.tool;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertLinesMatch;
@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import de.sormuras.bartholdy.Configuration;
-import de.sormuras.bartholdy.process.Java;
+import de.sormuras.bartholdy.tool.Java;
 import java.io.UncheckedIOException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
@@ -46,11 +46,6 @@ class JavaTests {
     assertTrue(e.getCause().getMessage().contains("folder-that-does-not-exist"));
   }
 
-  @Test
-  void runBrokenJava() {
-    assertThrows(RuntimeException.class, () -> new BrokenJava().run("--version"));
-  }
-
   private static Configuration.Builder longCommandLineConfigurationBuilder(int args) {
     var builder = Configuration.builder();
     builder.addArgument("--dry-run");
@@ -59,12 +54,5 @@ class JavaTests {
       builder.addArgument(String.format("arg-%04d", i));
     }
     return builder;
-  }
-
-  static class BrokenJava extends Java {
-    @Override
-    public String getName() {
-      return "broken-java-name";
-    }
   }
 }

@@ -23,6 +23,10 @@ public interface Tool {
 
   String getName();
 
+  default String getProgram() {
+    return getName();
+  }
+
   String getVersion();
 
   default int run(Object... args) {

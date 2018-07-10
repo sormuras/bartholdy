@@ -41,6 +41,7 @@ javadoc {
 
 jar {
     exclude 'LICENSE' // keep root directory "clean", only `module-info.class` is allowed
+    into 'de/sormuras/bartholdy', { from 'version.properties' }
 }
 
 test {

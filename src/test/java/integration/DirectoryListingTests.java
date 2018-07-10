@@ -1,11 +1,11 @@
-package integration.process;
+package integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertLinesMatch;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import de.sormuras.bartholdy.AbstractTool;
 import de.sormuras.bartholdy.Configuration;
-import de.sormuras.bartholdy.process.AbstractProcessTool;
 import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -45,7 +45,7 @@ class DirectoryListingTests {
     assertTrue(result.getOutput("out").contains("README.md"));
   }
 
-  static class WindowsShellCommand extends AbstractProcessTool {
+  static class WindowsShellCommand extends AbstractTool {
 
     @Override
     public String getName() {
@@ -63,7 +63,7 @@ class DirectoryListingTests {
     }
   }
 
-  static class ShellCommand extends AbstractProcessTool {
+  static class ShellCommand extends AbstractTool {
 
     @Override
     public String getName() {
