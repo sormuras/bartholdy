@@ -49,18 +49,7 @@ public class Ant extends AbstractTool {
   private Path getExecutable(Path home) {
     var win = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("win");
     var name = "ant" + (win ? ".bat" : "");
-    var path = home.resolve("bin").resolve(name);
-    // set executable flag
-    if (!Files.isExecutable(path)) {
-      if (FileSystems.getDefault().supportedFileAttributeViews().contains("posix")) {
-        var program = path.toFile();
-        var ok = program.setExecutable(true);
-        if (!ok) {
-          LOG.log(System.Logger.Level.WARNING, "couldn't set executable flag: " + program);
-        }
-      }
-    }
-    return path;
+    return Bartholdy.setExecutable(home.resolve("bin").resolve(name));
   }
 
   @Override

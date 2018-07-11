@@ -26,13 +26,12 @@ class GradleTests {
   private void version(String version) {
     var destination = Paths.get("build", "bartholdy", "tools");
     var tool = Gradle.install(version, destination);
-    // assertTrue(tool.getVersion().contains(version));
-    assertEquals("maven", tool.getName());
+    assertEquals("gradle", tool.getName());
     assertTrue(Files.exists(tool.getHome()));
 
     var result = tool.run(Configuration.of("-version", "--no-daemon"));
     assertEquals(0, result.getExitCode());
-    // assertEquals("", result.getOutput("err"));
+    // assertEquals("", result.getOutput("err")); // Illegal Access is reported here
     var expectedLines =
         List.of(
             "",

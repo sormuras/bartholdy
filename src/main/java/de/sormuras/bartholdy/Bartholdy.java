@@ -10,6 +10,7 @@ import java.io.StringWriter;
 import java.io.UncheckedIOException;
 import java.net.URI;
 import java.nio.channels.Channels;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -18,6 +19,8 @@ import java.util.StringJoiner;
 import java.util.spi.ToolProvider;
 
 public final class Bartholdy {
+
+  private static final System.Logger LOG = System.getLogger(Bartholdy.class.getName());
 
   public static void main(String[] args) {
     System.out.println("Bartholdy " + version());
@@ -89,6 +92,22 @@ public final class Bartholdy {
     var joiner = new StringJoiner(System.lineSeparator());
     reader.lines().iterator().forEachRemaining(joiner::add);
     return joiner.toString();
+  }
+
+  public static Path setExecutable(Path path) {
+    if (Files.isExecutable(path)) {
+      return path;
+    }
+    if (!FileSystems.getDefault().supportedFileAttributeViews().contains("posix")) {
+      LOG.log(System.Logger.Level.DEBUG, "default file system doesn't support posix");
+      return path;
+    }
+    var program = path.toFile();
+    var ok = program.setExecutable(true);
+    if (!ok) {
+      LOG.log(System.Logger.Level.WARNING, "couldn't set executable flag: " + program);
+    }
+    return path;
   }
 
   public static String version() {
