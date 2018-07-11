@@ -34,7 +34,7 @@ class GradleTests {
     // assertEquals("", result.getOutput("err")); // Illegal Access is reported here
     var expectedLines =
         List.of(
-            "",
+            ">> blank line, Welcome message, etc... >>",
             "------------------------------------------------------------",
             "Gradle " + version,
             "------------------------------------------------------------",
