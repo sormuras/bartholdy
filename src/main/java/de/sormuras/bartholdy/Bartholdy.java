@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UncheckedIOException;
 import java.net.URI;
@@ -92,6 +93,30 @@ public final class Bartholdy {
     var joiner = new StringJoiner(System.lineSeparator());
     reader.lines().iterator().forEachRemaining(joiner::add);
     return joiner.toString();
+  }
+
+  public static String read(Path jar, String entry, String delimiter, String defaultValue) {
+    try (var fs = FileSystems.newFileSystem(jar, null)) {
+      for (var root : fs.getRootDirectories()) {
+        var versionPath = root.resolve(entry);
+        if (Files.exists(versionPath)) {
+          return String.join(delimiter, Files.readAllLines(versionPath));
+        }
+      }
+    } catch (IOException e) {
+      throw new UncheckedIOException("read entry failed", e);
+    }
+    return defaultValue;
+  }
+
+  public static String readProperty(String source, String key, String defaultValue) {
+    var properties = new Properties();
+    try {
+      properties.load(new StringReader(source));
+    } catch (IOException e) {
+      throw new UncheckedIOException("read property failed", e);
+    }
+    return properties.getProperty(key, defaultValue);
   }
 
   public static Path setExecutable(Path path) {

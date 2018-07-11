@@ -4,15 +4,11 @@ import static java.util.Objects.requireNonNull;
 
 import de.sormuras.bartholdy.AbstractTool;
 import de.sormuras.bartholdy.Bartholdy;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.net.URI;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 /** Ant. */
 public class Ant extends AbstractTool {
@@ -74,18 +70,6 @@ public class Ant extends AbstractTool {
 
   /** Get version from "version.txt" in "lib/ant.jar". */
   private String getVersion(Path jar) {
-    var version = "?";
-    var entry = "/org/apache/tools/ant/version.txt";
-    try (var fs = FileSystems.newFileSystem(jar, null)) {
-      for (var root : fs.getRootDirectories()) {
-        var versionPath = root.resolve(entry);
-        if (Files.exists(versionPath)) {
-          return Files.readAllLines(versionPath).stream().collect(Collectors.joining());
-        }
-      }
-    } catch (IOException e) {
-      throw new UncheckedIOException("extract version failed", e);
-    }
-    return version;
+    return Bartholdy.read(jar, "/org/apache/tools/ant/version.txt", "", "?");
   }
 }
