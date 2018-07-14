@@ -19,11 +19,13 @@ idea {
 
 repositories {
     mavenCentral()
+    jcenter() // needed for 'de.sormuras:brahms' until synced to mavenCentral()
 }
 
 dependencies {
     testCompile "org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}"
     testRuntime "org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}"
+    testRuntime "de.sormuras:brahms:${sormurasBrahmsVersion}"
 }
 
 javadoc {
