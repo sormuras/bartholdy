@@ -24,8 +24,8 @@ class GradleTests {
   }
 
   @Test
-  void gradle_4_9_rc_2() {
-    version("4.9-rc-2");
+  void gradle_4_9() {
+    version("4.9");
   }
 
   private void version(String version) {
