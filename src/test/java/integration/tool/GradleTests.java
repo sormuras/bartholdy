@@ -4,16 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertLinesMatch;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import de.sormuras.bartholdy.AbstractTool;
-import de.sormuras.bartholdy.Bartholdy;
 import de.sormuras.bartholdy.Configuration;
 import de.sormuras.bartholdy.Tool;
 import de.sormuras.bartholdy.tool.Gradle;
+import de.sormuras.bartholdy.tool.GradleWrapper;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Locale;
 import org.junit.jupiter.api.Test;
 
 class GradleTests {
@@ -26,6 +23,12 @@ class GradleTests {
   @Test
   void gradle_4_9() {
     version("4.9");
+  }
+
+  @Test
+  void gradle_wrapper() {
+    var tool = new GradleWrapper();
+    version(tool.getVersion(), tool);
   }
 
   private void version(String version) {
@@ -56,37 +59,5 @@ class GradleTests {
             "JVM:          .+",
             "OS:           .+");
     assertLinesMatch(expectedLines, result.getOutputLines("out"));
-  }
-
-  @Test
-  void gradleWrapper() {
-    var tool = new GradleWrapper();
-    version(tool.getVersion(), tool);
-  }
-
-  class GradleWrapper extends AbstractTool {
-
-    @Override
-    protected Path createPathToProgram() {
-      return getHome().resolve(getProgram());
-    }
-
-    @Override
-    public String getName() {
-      return "gradle-wrapper";
-    }
-
-    @Override
-    public String getProgram() {
-      var win = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("win");
-      return "gradlew" + (win ? ".bat" : "");
-    }
-
-    @Override
-    public String getVersion() {
-      var jar = getHome().resolve("gradle").resolve("wrapper").resolve("gradle-wrapper.jar");
-      var text = Bartholdy.read(jar, "/build-receipt.properties", System.lineSeparator(), "?");
-      return Bartholdy.readProperty(text, "versionNumber", "unknown");
-    }
   }
 }

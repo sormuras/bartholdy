@@ -84,7 +84,6 @@ class ReflectorTests {
         actualLines);
   }
 
-
   @Test
   void addAllOptionsWithIllegalProperties() {
     var options = new ClassWithPrivateField();
@@ -93,7 +92,9 @@ class ReflectorTests {
     var error = assertThrows(Error.class, (Executable) reflector::reflect);
     assertTrue(error.getMessage().startsWith("reflecting field 'private int"), error.getMessage());
     var cause = error.getCause();
-    assertTrue(cause.getMessage().startsWith(Reflector.class +" cannot access a member of class"), cause.getMessage());
+    assertTrue(
+        cause.getMessage().startsWith(Reflector.class + " cannot access a member of class"),
+        cause.getMessage());
     assertTrue(cause.getMessage().endsWith("with modifiers \"private\""));
   }
 
