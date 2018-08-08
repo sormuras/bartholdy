@@ -19,7 +19,6 @@ idea {
 
 repositories {
     mavenCentral()
-    jcenter() // needed for 'de.sormuras:brahms' until synced to mavenCentral()
 }
 
 dependencies {
