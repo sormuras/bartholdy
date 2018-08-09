@@ -28,7 +28,8 @@ class MavenTests {
     var tool = Maven.install(version, destination);
     // assertTrue(tool.getVersion().contains(version));
     assertEquals("maven", tool.getName());
-    assertTrue(Files.exists(tool.getHome()));
+    assertTrue(Files.isDirectory(tool.getHome()));
+    assertEquals("MAVEN_HOME", tool.getNameOfEnvironmentHomeVariable());
 
     var result = tool.run(Configuration.of("-version"));
     assertEquals(0, result.getExitCode());

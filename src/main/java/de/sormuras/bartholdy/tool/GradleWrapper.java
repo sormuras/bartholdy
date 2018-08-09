@@ -19,7 +19,7 @@ public class GradleWrapper extends AbstractTool {
   }
 
   @Override
-  protected Path getHome() {
+  public Path getHome() {
     return home;
   }
 

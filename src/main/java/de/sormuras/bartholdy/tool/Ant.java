@@ -13,8 +13,6 @@ import java.util.Locale;
 /** Ant. */
 public class Ant extends AbstractTool {
 
-  private static final System.Logger LOG = System.getLogger(Ant.class.getName());
-
   public static Ant install(String version, Path tools) {
     var host = "https://archive.apache.org/dist/";
     var uri = String.format("%s/ant/binaries/apache-ant-%s-bin.zip", host, version);

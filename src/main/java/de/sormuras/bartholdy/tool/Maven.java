@@ -13,8 +13,6 @@ import java.util.Locale;
 /** Maven. */
 public class Maven extends AbstractTool {
 
-  private static final System.Logger LOG = System.getLogger(Maven.class.getName());
-
   public static Maven install(String version, Path tools) {
     var host = "https://archive.apache.org/dist/maven/maven-3/" + version;
     var uri = String.format("%s/binaries/apache-maven-%s-bin.zip", host, version);

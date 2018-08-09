@@ -22,6 +22,7 @@ public abstract class AbstractTool implements Tool {
     var builder = new ProcessBuilder(command);
     builder.directory(configuration.getWorkingDirectory().toFile());
     builder.environment().put("JAVA_HOME", Bartholdy.currentJdkHome().toString());
+    builder.environment().put(getNameOfEnvironmentHomeVariable(), getHome().toString());
     builder.environment().putAll(configuration.getEnvironment());
     try {
       var process = builder.start();
@@ -75,8 +76,12 @@ public abstract class AbstractTool implements Tool {
     }
   }
 
-  protected Path getHome() {
+  public Path getHome() {
     return Paths.get(".");
+  }
+
+  public String getNameOfEnvironmentHomeVariable() {
+    return getClass().getSimpleName().toUpperCase() + "_HOME";
   }
 
   protected Path createPathToProgram() {

@@ -35,7 +35,8 @@ class GradleTests {
     var destination = Paths.get("build", "bartholdy", "tools");
     var tool = Gradle.install(version, destination);
     assertEquals("gradle", tool.getName());
-    assertTrue(Files.exists(tool.getHome()));
+    assertTrue(Files.isDirectory(tool.getHome()));
+    assertEquals("GRADLE_HOME", tool.getNameOfEnvironmentHomeVariable());
 
     version(version, tool);
   }

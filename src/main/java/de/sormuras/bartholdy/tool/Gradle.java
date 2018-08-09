@@ -13,8 +13,6 @@ import java.util.Locale;
 /** Gradle. */
 public class Gradle extends AbstractTool {
 
-  private static final System.Logger LOG = System.getLogger(Gradle.class.getName());
-
   public static Gradle install(String version, Path tools) {
     var uri = "https://services.gradle.org/distributions/gradle-" + version + "-bin.zip";
     var home = Bartholdy.install(URI.create(uri), tools);

@@ -33,7 +33,8 @@ class AntTests {
     var tool = Ant.install(version, destination);
     assertTrue(tool.getVersion().contains(version));
     assertEquals("ant", tool.getName());
-    assertTrue(Files.exists(tool.getHome()));
+    assertTrue(Files.isDirectory(tool.getHome()));
+    assertEquals("ANT_HOME", tool.getNameOfEnvironmentHomeVariable());
 
     var result = tool.run(Configuration.of("-version"));
     assertEquals(0, result.getExitCode());

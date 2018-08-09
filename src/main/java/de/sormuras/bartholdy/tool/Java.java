@@ -12,7 +12,7 @@ import java.nio.file.Path;
 public class Java extends AbstractTool {
 
   @Override
-  protected Path getHome() {
+  public Path getHome() {
     return Bartholdy.currentJdkHome();
   }
 
