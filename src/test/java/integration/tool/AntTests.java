@@ -14,6 +14,11 @@ import org.junit.jupiter.api.Test;
 class AntTests {
 
   @Test
+  void ant_1_10_5() {
+    version("1.10.5");
+  }
+
+  @Test
   void ant_1_10_4() {
     version("1.10.4");
   }
