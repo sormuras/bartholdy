@@ -1,22 +1,27 @@
 package de.sormuras.bartholdy;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
 
 public abstract class AbstractTool implements Tool {
 
   @Override
   public Result run(Configuration configuration) {
+    var outLines = new ArrayList<String>();
+    var errLines = new ArrayList<String>();
     var timeout = configuration.getTimeout().toMillis();
     var command = createCommand(configuration);
     var builder = new ProcessBuilder(command);
@@ -25,21 +30,25 @@ public abstract class AbstractTool implements Tool {
     builder.environment().put(getNameOfEnvironmentHomeVariable(), getHome().toString());
     builder.environment().putAll(configuration.getEnvironment());
     try {
+      var start = Instant.now();
       var process = builder.start();
       var executor = Executors.newScheduledThreadPool(3);
       try (var inputStream = process.getInputStream();
           var errorStream = process.getErrorStream()) {
-        var out = executor.submit(() -> Bartholdy.read(inputStream));
-        var err = executor.submit(() -> Bartholdy.read(errorStream));
-        executor.schedule(process::destroy, timeout, TimeUnit.MILLISECONDS);
+        executor.submit(new StreamGobbler(inputStream, outLines::add));
+        executor.submit(new StreamGobbler(errorStream, errLines::add));
+        var destroyer = executor.schedule(process::destroy, timeout, TimeUnit.MILLISECONDS);
         process.waitFor();
+        var duration = Duration.between(start, Instant.now());
         return Result.builder()
+            .setTimedOut(!destroyer.cancel(true))
             .setExitCode(process.exitValue())
-            .setOutput("out", out.get(timeout, TimeUnit.MILLISECONDS))
-            .setOutput("err", err.get(timeout, TimeUnit.MILLISECONDS))
+            .setDuration(duration)
+            .setOutput("out", String.join(System.lineSeparator(), outLines))
+            .setOutput("err", String.join(System.lineSeparator(), errLines))
             .build();
 
-      } catch (InterruptedException | ExecutionException | TimeoutException e) {
+      } catch (InterruptedException e) {
         throw new RuntimeException("run failed", e);
       } finally {
         process.destroy();
@@ -94,5 +103,19 @@ public abstract class AbstractTool implements Tool {
 
   protected List<String> getToolArguments() {
     return List.of();
+  }
+
+  static class StreamGobbler implements Runnable {
+    private InputStream inputStream;
+    private Consumer<String> consumeInputLine;
+
+    StreamGobbler(InputStream inputStream, Consumer<String> consumeInputLine) {
+      this.inputStream = inputStream;
+      this.consumeInputLine = consumeInputLine;
+    }
+
+    public void run() {
+      new BufferedReader(new InputStreamReader(inputStream)).lines().forEach(consumeInputLine);
+    }
   }
 }

@@ -1,6 +1,8 @@
 package integration;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertLinesMatch;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -20,6 +22,7 @@ class DirectoryListingTests {
   void dir() {
     var tool = new WindowsShellCommand();
     var result = tool.run(Configuration.of("/c", "dir"));
+    assertFalse(result.isTimedOut());
     assertEquals(0, result.getExitCode());
     assertEquals("", result.getOutput("err"));
     var expectedLines = List.of(">> header >>", ".+README\\.md.*", ">> footer >>");
@@ -29,10 +32,25 @@ class DirectoryListingTests {
   @Test
   @EnabledOnOs(OS.WINDOWS)
   void windowsShellWithoutActualCommandFails() {
-    // Override default 9 seconds timeout for faster test execution.
-    var conf = Configuration.builder().setTimeoutMillis(789);
+    var conf = Configuration.builder().setTimeoutMillis(789).build();
     var result = new WindowsShellCommand().run(conf);
+    assertAll("Checking -> " + result,
+        () -> assertTrue(result.isTimedOut()),
+        () -> assertEquals(1, result.getExitCode()),
+        () -> assertFalse(result.getOutput("out").isEmpty()),
+        () -> assertEquals("", result.getOutput("err"))
+    );
+  }
+
+  @Test
+  @EnabledOnOs(OS.WINDOWS)
+  void windowsShellCallingPauseTimesOut() {
+    var conf = Configuration.builder().setTimeoutMillis(789).setArguments("/c", "pause").build();
+    var result = new WindowsShellCommand().run(conf);
+    assertTrue(result.isTimedOut());
     assertEquals(1, result.getExitCode());
+    assertFalse(result.getOutput("out").isEmpty());
+    assertEquals("", result.getOutput("err"));
   }
 
   @Test

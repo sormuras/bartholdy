@@ -48,11 +48,14 @@ public interface Result {
     return List.of(value.split("\\R"));
   }
 
+  boolean isTimedOut();
+
   class Builder implements Result {
 
     private int exitCode = Integer.MIN_VALUE;
     private Duration duration = Duration.ZERO;
     private Map<String, String> lines = new HashMap<>();
+    private boolean timedOut;
 
     public Result build() {
       requireNonNull(duration, "duration must not be null");
@@ -64,6 +67,8 @@ public interface Result {
       return "Result{"
           + "exitCode="
           + exitCode
+          + ", timedOut="
+          + timedOut
           + ", duration="
           + duration
           + ", lines="
@@ -98,6 +103,16 @@ public interface Result {
 
     public Builder setOutput(String key, String output) {
       this.lines.put(key, output);
+      return this;
+    }
+
+    @Override
+    public boolean isTimedOut() {
+      return timedOut;
+    }
+
+    public Builder setTimedOut(boolean timedOut) {
+      this.timedOut = timedOut;
       return this;
     }
   }

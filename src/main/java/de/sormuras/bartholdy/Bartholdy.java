@@ -1,10 +1,7 @@
 package de.sormuras.bartholdy;
 
-import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -16,7 +13,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
-import java.util.StringJoiner;
 import java.util.spi.ToolProvider;
 
 public final class Bartholdy {
@@ -86,13 +82,6 @@ public final class Bartholdy {
     } catch (IOException e) {
       throw new UncheckedIOException("install failed", e);
     }
-  }
-
-  static String read(InputStream inputStream) {
-    var reader = new BufferedReader(new InputStreamReader(inputStream));
-    var joiner = new StringJoiner(System.lineSeparator());
-    reader.lines().iterator().forEachRemaining(joiner::add);
-    return joiner.toString();
   }
 
   public static String read(Path jar, String entry, String delimiter, String defaultValue) {

@@ -1,6 +1,7 @@
 package de.sormuras.bartholdy;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
@@ -17,6 +18,7 @@ class ResultTests {
   void defaults() {
     var result = Result.builder().build();
     assertEquals(Integer.MIN_VALUE, result.getExitCode());
+    assertFalse(result.isTimedOut());
     assertEquals(Duration.ZERO, result.getDuration());
     assertEquals("", result.getOutput(null));
     assertEquals("", result.getOutput("(:"));
@@ -25,7 +27,7 @@ class ResultTests {
 
   @Test
   void defaultStringRepresentation() {
-    var expected = "Result{exitCode=-2147483648, duration=PT0S, lines={}}";
+    var expected = "Result{exitCode=-2147483648, timedOut=false, duration=PT0S, lines={}}";
     assertEquals(expected, Result.builder().build().toString());
   }
 
