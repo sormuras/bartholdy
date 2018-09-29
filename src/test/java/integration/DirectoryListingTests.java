@@ -34,12 +34,12 @@ class DirectoryListingTests {
   void windowsShellWithoutActualCommandFails() {
     var conf = Configuration.builder().setTimeoutMillis(789).build();
     var result = new WindowsShellCommand().run(conf);
-    assertAll("Checking -> " + result,
+    assertAll(
+        "Checking -> " + result,
         () -> assertTrue(result.isTimedOut()),
         () -> assertEquals(1, result.getExitCode()),
         () -> assertFalse(result.getOutput("out").isEmpty()),
-        () -> assertEquals("", result.getOutput("err"))
-    );
+        () -> assertEquals("", result.getOutput("err")));
   }
 
   @Test
