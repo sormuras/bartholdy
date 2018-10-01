@@ -39,8 +39,8 @@ class AcyclicDirectedGraphTests {
             List.of("AB", "BC", "CB"),
             List.of("AB", "CB", "BA"),
             List.of("AB", "BC", "CD", "DA"),
-            List.of("AB", "AF", "CD", "DE", "CE", "BD", "FD", "BC", "ED"));
-    // List.of("AB", "AF", "CD", "DE", "CE", "BD", "FD", "BC", "EA"));
+            List.of("AB", "AF", "CD", "DE", "CE", "BD", "FD", "BC", "ED"),
+            List.of("AB", "AF", "CD", "DE", "CE", "BD", "FD", "BC", "EA"));
 
     return samples
         .stream()
@@ -64,10 +64,10 @@ class AcyclicDirectedGraphTests {
   }
 
   @Test
-  void complex() {
-    var graph = buildGraph(List.of("AB", "AF", "CD", "DE", "CE", "BD", "FD"));
+  void islands() {
+    var graph = buildGraph(List.of("AB", "CD")); // "A -> B  C -> D"
     graph.addEdge("B", "C");
-    // TODO assertThrows(CyclicEdgeException.class, () -> graph.addEdge("E", "A"));
+    assertThrows(CyclicEdgeException.class, () -> graph.addEdge("D", "A"));
   }
 
   AcyclicDirectedGraph buildGraph(List<String> edges) {

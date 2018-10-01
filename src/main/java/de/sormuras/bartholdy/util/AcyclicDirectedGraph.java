@@ -21,7 +21,7 @@ class AcyclicDirectedGraph {
     }
   }
 
-  abstract static class Base<T extends Base> implements Comparable<T> {
+  private abstract static class Base<T extends Base> implements Comparable<T> {
     final String id;
 
     Base(String id) {
@@ -104,19 +104,15 @@ class AcyclicDirectedGraph {
     }
     // add edge to set of "good" edges, i.e. the graph
     if (edges.add(edge)) {
-      // System.out.println("\n+ " + edge + " // " + edges);
+      // remember connections
+      source.outbounds.add(target);
+      target.inbounds.add(source);
+
+      // update set of "bad" edges
+      update(edge);
 
       // clean up
       cyclic.remove(back);
-
-      // update set of "bad" edges
-      target.inbounds.add(source);
-      walk(source, node -> node.inbounds, node -> cyclic.add(new Edge(target, node)));
-
-      walk(target, node -> node.outbounds, node -> cyclic.add(new Edge(node, source)));
-      source.outbounds.add(target);
-
-      // System.out.println("c " + cyclic);
     }
   }
 
@@ -126,6 +122,36 @@ class AcyclicDirectedGraph {
       throw new IllegalArgumentException("Unknown node: " + id);
     }
     return node;
+  }
+
+  private void update(Edge edge) {
+    var source = edge.source;
+    var target = edge.target;
+
+    walk(source, node -> node.inbounds, node -> mark(target, node));
+    walk(target, node -> node.outbounds, node -> mark(node, source));
+
+    var froms = new TreeSet<Node>();
+    var tos = new TreeSet<Node>();
+    walk(target, node -> node.outbounds, froms::add);
+    walk(source, node -> node.inbounds, tos::add);
+    for (var from : froms) {
+      for (var to : tos) {
+        mark(from, to);
+      }
+    }
+  }
+
+  private void mark(Node source, Node target) {
+    if (source == target) {
+      return;
+    }
+    var back = new Edge(target, source);
+    if (edges.contains(back)) {
+      return;
+    }
+    var edge = new Edge(source, target);
+    cyclic.add(edge);
   }
 
   private void walk(Node source, Function<Node, Set<Node>> nodes, Consumer<Node> consumer) {
