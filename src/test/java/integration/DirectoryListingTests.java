@@ -60,7 +60,7 @@ class DirectoryListingTests {
     var result = tool.run(Configuration.of("-c", "ls", "-l"));
     assertEquals(0, result.getExitCode(), result.toString());
     assertEquals("", result.getOutput("err"));
-    assertTrue(result.getOutput("out").contains("README.md"));
+    assertTrue(result.getOutput("out").contains("README.md"), "result=" + result);
   }
 
   static class WindowsShellCommand extends AbstractTool {
