@@ -1,16 +1,15 @@
 package integration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import de.sormuras.bartholdy.Configuration;
 import de.sormuras.bartholdy.jdk.Jdeps;
-import org.junit.jupiter.api.Test;
-
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
 
 class DetectCyclesTests {
 
@@ -32,12 +31,12 @@ class DetectCyclesTests {
 
     var builder = Configuration.builder();
     if (jar.isMultiRelease()) {
-      builder.addArgument("--multi-release");
-      builder.addArgument(Runtime.version().feature());
+      builder.addArgument("--multi-release").addArgument(Runtime.version().feature());
     }
 
     var destination = Paths.get("build", "test-output", getClass().getSimpleName(), name);
-    var configuration = builder //
+    var configuration =
+        builder
             .addArgument("--dot-output")
             .addArgument(destination) // Specifies the destination directory for DOT file output.
             .addArgument("-verbose:class") // Prints class-level dependencies.
