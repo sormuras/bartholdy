@@ -2,7 +2,6 @@ package de.sormuras.bartholdy.util;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Consumer;
@@ -34,14 +33,14 @@ class AcyclicDirectedGraph {
     }
 
     @Override
-    public boolean equals(Object o) {
-      if (this == o) {
+    public boolean equals(Object other) {
+      if (this == other) {
         return true;
       }
-      if (o == null || getClass() != o.getClass()) {
+      if (other == null || getClass() != other.getClass()) {
         return false;
       }
-      return id.equals(((Edge) o).id);
+      return id.equals(((Base) other).id);
     }
 
     @Override
@@ -81,38 +80,60 @@ class AcyclicDirectedGraph {
 
   private final Map<String, Node> nodes;
   private final Set<Edge> edges;
-  private final Set<Edge> cyclic;
+  private final Set<Edge> antis;
+  private final Set<Edge> banned;
 
   AcyclicDirectedGraph(Set<String> nodeIds) {
     this.nodes = new HashMap<>();
     this.edges = new TreeSet<>();
-    this.cyclic = new TreeSet<>();
+    this.antis = new TreeSet<>();
+    this.banned = new TreeSet<>();
 
     nodeIds.forEach(id -> nodes.put(id, new Node(id)));
   }
 
   void addEdge(String sourceId, String targetId) {
-    if (Objects.equals(sourceId, targetId)) {
-      throw new CyclicEdgeException("Source and target id are equal: " + sourceId);
-    }
     var source = node(sourceId);
     var target = node(targetId);
+    if (source == target) {
+      throw new CyclicEdgeException("Same node: " + source + " == " + target);
+    }
+    // create edge and check if it is illegal
     var edge = new Edge(source, target);
-    var back = new Edge(target, source);
-    if (cyclic.contains(edge) || edges.contains(back)) {
+    if (banned.contains(edge) || antis.contains(edge)) {
       throw new CyclicEdgeException(edge, edges);
     }
-    // add edge to set of "good" edges, i.e. the graph
-    if (edges.add(edge)) {
-      // remember connections
-      source.outbounds.add(target);
-      target.inbounds.add(source);
+    // add edge to set of "good" edges, i.e. the acyclic directed graph
+    if (!edges.add(edge)) {
+      // duplicated edge, nothing further to do
+      return;
+    }
 
-      // update set of "bad" edges
-      update(edge);
+    // ban anti-edge and potentially remove it from banned set
+    var anti = new Edge(target, source);
+    antis.add(anti);
+    banned.remove(anti);
 
-      // clean up
-      cyclic.remove(back);
+    // remember node's connections
+    source.outbounds.add(target);
+    target.inbounds.add(source);
+
+    // ban all other
+    var sources = new TreeSet<Node>();
+    var targets = new TreeSet<Node>();
+    walk(source, node -> node.outbounds, sources::add);
+    walk(target, node -> node.inbounds, targets::add);
+    for (var from : sources) {
+      for (var to : targets) {
+        if (from == to) {
+          continue;
+        }
+        var ban = new Edge(from, to);
+        if (antis.contains(ban)) {
+          continue;
+        }
+        banned.add(ban);
+      }
     }
   }
 
@@ -124,38 +145,8 @@ class AcyclicDirectedGraph {
     return node;
   }
 
-  private void update(Edge edge) {
-    var source = edge.source;
-    var target = edge.target;
-
-    walk(source, node -> node.inbounds, node -> mark(target, node));
-    walk(target, node -> node.outbounds, node -> mark(node, source));
-
-    var froms = new TreeSet<Node>();
-    var tos = new TreeSet<Node>();
-    walk(target, node -> node.outbounds, froms::add);
-    walk(source, node -> node.inbounds, tos::add);
-    for (var from : froms) {
-      for (var to : tos) {
-        mark(from, to);
-      }
-    }
-  }
-
-  private void mark(Node source, Node target) {
-    if (source == target) {
-      return;
-    }
-    var back = new Edge(target, source);
-    if (edges.contains(back)) {
-      return;
-    }
-    var edge = new Edge(source, target);
-    cyclic.add(edge);
-  }
-
-  private void walk(Node source, Function<Node, Set<Node>> nodes, Consumer<Node> consumer) {
-    for (var node : nodes.apply(source)) {
+  private void walk(Node root, Function<Node, Set<Node>> nodes, Consumer<Node> consumer) {
+    for (var node : nodes.apply(root)) {
       consumer.accept(node);
       walk(node, nodes, consumer);
     }
