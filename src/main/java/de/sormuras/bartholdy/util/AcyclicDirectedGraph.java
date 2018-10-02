@@ -7,9 +7,9 @@ import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-class AcyclicDirectedGraph {
+public class AcyclicDirectedGraph {
 
-  static class CyclicEdgeException extends IllegalArgumentException {
+  public static class CyclicEdgeException extends IllegalArgumentException {
 
     CyclicEdgeException(Edge edge, Set<Edge> graph) {
       super("Edge " + edge + " creates a cycle in graph:" + graph);
@@ -47,7 +47,6 @@ class AcyclicDirectedGraph {
     public int hashCode() {
       return id.hashCode();
     }
-
 
     @Override
     public String toString() {
@@ -89,7 +88,7 @@ class AcyclicDirectedGraph {
   private final Set<Edge> antis;
   private final Set<Edge> banned;
 
-  AcyclicDirectedGraph(Set<String> nodeIds) {
+  public AcyclicDirectedGraph(Set<String> nodeIds) {
     this.nodes = new HashMap<>();
     this.edges = new TreeSet<>();
     this.antis = new TreeSet<>();
@@ -98,7 +97,7 @@ class AcyclicDirectedGraph {
     nodeIds.forEach(id -> nodes.put(id, new Node(id)));
   }
 
-  void addEdge(String sourceId, String targetId) {
+  public void addEdge(String sourceId, String targetId) {
     var source = node(sourceId);
     var target = node(targetId);
     if (source == target) {
