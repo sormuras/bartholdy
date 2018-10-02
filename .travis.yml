@@ -13,4 +13,4 @@ install:
   - chmod u+x gradlew
 
 script:
-  - ./gradlew build --scan && ./gradlew ciPerformRelease
+  - ./gradlew build --scan --stacktrace --info && ./gradlew ciPerformRelease
