@@ -1,13 +1,18 @@
 package integration;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertLinesMatch;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import de.sormuras.bartholdy.Configuration;
 import de.sormuras.bartholdy.jdk.Jdeps;
 import de.sormuras.bartholdy.util.AcyclicDirectedGraph;
-import de.sormuras.bartholdy.util.AcyclicDirectedGraph.CyclicEdgeException;
+import de.sormuras.bartholdy.util.CyclicEdgeException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.jar.JarFile;
@@ -16,22 +21,51 @@ import org.junit.jupiter.api.Test;
 
 class DetectCyclesTests {
 
+  private static class Item {
+    private final String sourceClass;
+    private final String targetClass;
+    private final String sourcePackage;
+    private final String targetPackage;
+
+    Item(String line) {
+      var split = line.split("->");
+      this.sourceClass = classNameOf(split[0]);
+      this.targetClass = classNameOf(split[1]);
+      this.sourcePackage = packageNameOf(sourceClass);
+      this.targetPackage = packageNameOf(targetClass);
+    }
+
+    @Override
+    public String toString() {
+      return sourceClass + " -> " + targetClass;
+    }
+  }
+
   @Test
   void analyze_JUnit_Platform_Commons_1_3_1() throws Exception {
-    analyze("junit-platform-commons-1.3.1");
+    var cycles = analyze("junit-platform-commons-1.3.1");
+    assertEquals(0, cycles.size());
   }
 
   @Test
   void analyze_JUnit_Jupiter_Engine_5_3_1() throws Exception {
-    assertThrows(CyclicEdgeException.class, () -> analyze("junit-jupiter-engine-5.3.1"));
+    var cycles = analyze("junit-jupiter-engine-5.3.1");
+    assertLinesMatch(
+        List.of(
+            "org.junit.jupiter.engine.descriptor.TestInstanceLifecycleUtils -> org.junit.jupiter.engine.Constants",
+            "org.junit.jupiter.engine.discovery.JavaElementsResolver -> org.junit.jupiter.engine.JupiterTestEngine",
+            "org.junit.jupiter.engine.execution.ConditionEvaluator -> org.junit.jupiter.engine.Constants",
+            "org.junit.jupiter.engine.extension.ExtensionRegistry -> org.junit.jupiter.engine.Constants"),
+        cycles.stream().map(Object::toString).collect(Collectors.toList()));
   }
 
   @Test
   void analyze_ASM_4_1() throws Exception {
-    analyze("asm-4.1");
+    var cycles = analyze("asm-4.1");
+    assertEquals(0, cycles.size());
   }
 
-  private void analyze(String name) throws Exception {
+  private Collection<Item> analyze(String name) throws Exception {
     var path = Paths.get(getClass().getResource("/jars/" + name + ".jar").toURI());
     assertTrue(Files.exists(path));
 
@@ -72,37 +106,36 @@ class DetectCyclesTests {
             .map(line -> line.replaceAll(" \\(.+\\)", "")) // strip off locations
             .map(line -> line.replace('"', ' ')) // blank out double quotes
             .map(line -> line.replace(';', ' ')) // blank out semicolons
+            .map(String::trim)
             .collect(Collectors.toList());
     Files.write(raw, lines);
 
     var nodes = new TreeSet<String>();
-    var edges = new TreeSet<String>();
+    var items = new ArrayList<Item>();
     for (var line : lines) {
-      var split = line.split("->");
-      var source = classNameOf(split[0]);
-      var target = classNameOf(split[1]);
-
-      var sourcePackage = packageNameOf(source);
-      var targetPackage = packageNameOf(target);
-
-      if (sourcePackage.equals(targetPackage)) {
+      var item = new Item(line);
+      if (item.sourcePackage.equals(item.targetPackage)) {
         continue;
       }
 
-      if (ignorePackage(targetPackage)) {
+      if (ignorePackage(item.targetPackage)) {
         continue;
       }
-
-      nodes.add(sourcePackage);
-      nodes.add(targetPackage);
-      edges.add(sourcePackage + "\t" + targetPackage);
+      nodes.add(item.sourcePackage);
+      nodes.add(item.targetPackage);
+      items.add(item);
     }
 
     var graph = new AcyclicDirectedGraph(nodes);
-    for (var edge : edges) {
-      var tab = edge.indexOf('\t');
-      graph.addEdge(edge.substring(0, tab), edge.substring(tab + 1));
+    var cycles = new ArrayList<Item>();
+    for (var item : items) {
+      try {
+        graph.addEdge(item.sourcePackage, item.targetPackage);
+      } catch (CyclicEdgeException e) {
+        cycles.add(item);
+      }
     }
+    return cycles;
   }
 
   private static Set<String> IGNORE_TARGET_STARTING_WITH = Set.of("java.", "javax.");

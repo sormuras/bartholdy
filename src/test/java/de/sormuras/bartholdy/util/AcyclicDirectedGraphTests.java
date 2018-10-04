@@ -3,7 +3,6 @@ package de.sormuras.bartholdy.util;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
-import de.sormuras.bartholdy.util.AcyclicDirectedGraph.CyclicEdgeException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Stream;

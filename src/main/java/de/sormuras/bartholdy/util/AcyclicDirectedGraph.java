@@ -9,17 +9,6 @@ import java.util.function.Function;
 
 public class AcyclicDirectedGraph {
 
-  public static class CyclicEdgeException extends IllegalArgumentException {
-
-    CyclicEdgeException(Edge edge, Set<Edge> graph) {
-      super("Edge " + edge + " creates a cycle in graph:" + graph);
-    }
-
-    CyclicEdgeException(String message) {
-      super(message);
-    }
-  }
-
   private abstract static class Base<T extends Base> implements Comparable<T> {
     final String id;
 
