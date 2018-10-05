@@ -2,7 +2,6 @@ package de.sormuras.bartholdy.tool;
 
 import static java.util.Objects.requireNonNull;
 
-import de.sormuras.bartholdy.AbstractTool;
 import de.sormuras.bartholdy.Bartholdy;
 import java.net.URI;
 import java.nio.file.Files;

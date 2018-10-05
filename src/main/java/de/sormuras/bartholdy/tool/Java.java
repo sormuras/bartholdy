@@ -1,6 +1,5 @@
 package de.sormuras.bartholdy.tool;
 
-import de.sormuras.bartholdy.AbstractTool;
 import de.sormuras.bartholdy.Bartholdy;
 import java.nio.file.Path;
 

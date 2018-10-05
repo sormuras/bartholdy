@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertLinesMatch;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import de.sormuras.bartholdy.AbstractTool;
 import de.sormuras.bartholdy.Configuration;
+import de.sormuras.bartholdy.tool.AbstractTool;
 import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.Test;

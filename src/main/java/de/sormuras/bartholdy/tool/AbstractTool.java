@@ -1,5 +1,9 @@
-package de.sormuras.bartholdy;
+package de.sormuras.bartholdy.tool;
 
+import de.sormuras.bartholdy.Bartholdy;
+import de.sormuras.bartholdy.Configuration;
+import de.sormuras.bartholdy.Result;
+import de.sormuras.bartholdy.Tool;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
