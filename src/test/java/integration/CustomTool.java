@@ -4,6 +4,7 @@ import de.sormuras.bartholdy.Configuration;
 import de.sormuras.bartholdy.Result;
 import de.sormuras.bartholdy.Tool;
 import java.time.Duration;
+import java.util.List;
 
 public class CustomTool implements Tool {
 
@@ -33,6 +34,7 @@ public class CustomTool implements Tool {
     return Result.builder()
         .setExitCode(exitCode)
         .setDuration(duration)
+        .setOutput("aux", List.of("1", "2"))
         .setOutput("out", out)
         .setOutput("err", err);
   }

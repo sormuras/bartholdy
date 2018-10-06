@@ -35,18 +35,10 @@ public interface Result {
   Duration getDuration();
 
   default String getOutput(String key) {
-    return getOutput(key, "");
+    return String.join("\n", getOutputLines(key));
   }
 
-  String getOutput(String key, String defaultValue);
-
-  default List<String> getOutputLines(String key) {
-    var value = getOutput(key, null);
-    if (value == null) {
-      return List.of();
-    }
-    return List.of(value.split("\\R"));
-  }
+  List<String> getOutputLines(String key);
 
   boolean isTimedOut();
 
@@ -54,7 +46,7 @@ public interface Result {
 
     private int exitCode = Integer.MIN_VALUE;
     private Duration duration = Duration.ZERO;
-    private Map<String, String> lines = new HashMap<>();
+    private Map<String, List<String>> lines = new HashMap<>();
     private boolean timedOut;
 
     public Result build() {
@@ -96,14 +88,18 @@ public interface Result {
       return this;
     }
 
-    @Override
-    public String getOutput(String key, String defaultValue) {
-      return lines.getOrDefault(key, defaultValue);
+    public Builder setOutput(String key, String output) {
+      return setOutput(key, List.of(output.split("\\R")));
     }
 
-    public Builder setOutput(String key, String output) {
+    public Builder setOutput(String key, List<String> output) {
       this.lines.put(key, output);
       return this;
+    }
+
+    @Override
+    public List<String> getOutputLines(String key) {
+      return lines.getOrDefault(key, List.of());
     }
 
     @Override

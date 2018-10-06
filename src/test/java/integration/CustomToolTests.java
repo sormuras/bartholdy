@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import de.sormuras.bartholdy.Configuration;
 import java.time.Duration;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class CustomToolTests {
@@ -37,6 +38,7 @@ class CustomToolTests {
     var result = custom42.run(conf);
     assertEquals(0, result.getExitCode());
     assertEquals(Duration.ofNanos(1), result.getDuration());
+    assertEquals(List.of("1", "2"), result.getOutputLines("aux"));
     assertEquals("put", result.getOutput("out"));
     assertEquals("or", result.getOutput("err"));
   }
