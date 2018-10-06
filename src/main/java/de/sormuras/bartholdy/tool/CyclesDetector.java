@@ -6,7 +6,6 @@ import de.sormuras.bartholdy.Tool;
 import de.sormuras.bartholdy.jdk.Jdeps;
 import de.sormuras.bartholdy.util.AcyclicDirectedGraph;
 import de.sormuras.bartholdy.util.CyclicEdgeException;
-
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
