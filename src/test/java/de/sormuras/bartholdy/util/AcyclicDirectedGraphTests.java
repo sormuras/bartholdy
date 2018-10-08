@@ -22,6 +22,7 @@ class AcyclicDirectedGraphTests {
             List.of("AB", "AC"),
             List.of("AB", "AC", "BC"),
             List.of("AB", "AC", "CB"),
+            List.of("AB", "AD", "CD", "BC", "BD", "AC"),
             List.of("AB", "AF", "CD", "DE", "CE", "BD", "FD", "BC"));
 
     return samples.stream().map(list -> dynamicTest(list.toString(), () -> buildGraph(list)));
@@ -38,6 +39,7 @@ class AcyclicDirectedGraphTests {
             List.of("AB", "BC", "CB"),
             List.of("AB", "CB", "BA"),
             List.of("AB", "BC", "CD", "DA"),
+            List.of("AB", "AD", "CD", "BC", "BD", "AC", "DA"),
             List.of("AB", "AF", "CD", "DE", "CE", "BD", "FD", "BC", "ED"),
             List.of("AB", "AF", "CD", "DE", "CE", "BD", "FD", "BC", "EA"));
 
