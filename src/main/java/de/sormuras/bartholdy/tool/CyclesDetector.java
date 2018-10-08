@@ -40,7 +40,7 @@ public class CyclesDetector implements Tool {
       var cycles = new ArrayList<String>();
       detectCycles(path, cycles);
       result.setExitCode(cycles.isEmpty() ? 0 : 1);
-      result.setOutput("err", String.join("\n", cycles));
+      result.setOutput("err", cycles);
     } catch (Exception e) {
       e.printStackTrace();
       result.setExitCode(-1);

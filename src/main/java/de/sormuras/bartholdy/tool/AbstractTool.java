@@ -48,8 +48,8 @@ public abstract class AbstractTool implements Tool {
             .setTimedOut(!destroyer.cancel(true))
             .setExitCode(process.exitValue())
             .setDuration(duration)
-            .setOutput("out", String.join(System.lineSeparator(), outLines))
-            .setOutput("err", String.join(System.lineSeparator(), errLines))
+            .setOutput("out", outLines)
+            .setOutput("err", errLines)
             .build();
 
       } catch (InterruptedException e) {
