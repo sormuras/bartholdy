@@ -10,13 +10,6 @@ apply plugin: 'idea'
 
 description = 'Java Tooling Framework'
 
-idea {
-    project {
-        jdkName = '10'
-        languageLevel = '10'
-    }
-}
-
 repositories {
     mavenCentral()
 }

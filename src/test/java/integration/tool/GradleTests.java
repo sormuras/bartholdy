@@ -55,10 +55,11 @@ class GradleTests {
             "Build time:   .+ .+ UTC",
             "Revision:     .*",
             ">> blank line, Kotlin, etc... >>",
-            "Groovy:       2.4.12",
+            "Groovy:       2.4...",
             "Ant:          Apache Ant(TM) version 1.9.11 compiled on March 23 2018",
             "JVM:          .+",
-            "OS:           .+");
+            "OS:           .+",
+            "");
     assertLinesMatch(expectedLines, result.getOutputLines("out"));
   }
 }
