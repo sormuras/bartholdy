@@ -7,6 +7,7 @@ build/
 # Files
 .classpath
 .project
+*.iml
 
 # Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
 !gradle-wrapper.jar
