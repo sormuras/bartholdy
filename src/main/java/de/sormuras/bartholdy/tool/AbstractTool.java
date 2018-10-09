@@ -39,10 +39,12 @@ public abstract class AbstractTool implements Tool {
       var executor = Executors.newScheduledThreadPool(3);
       try (var inputStream = process.getInputStream();
           var errorStream = process.getErrorStream()) {
-        executor.submit(new StreamGobbler(inputStream, outLines::add));
-        executor.submit(new StreamGobbler(errorStream, errLines::add));
+        var outFuture = executor.submit(new StreamGobbler(inputStream, outLines::add));
+        var errFuture = executor.submit(new StreamGobbler(errorStream, errLines::add));
         var destroyer = executor.schedule(process::destroy, timeout, TimeUnit.MILLISECONDS);
         process.waitFor();
+        outFuture.cancel(false);
+        errFuture.cancel(false);
         var duration = Duration.between(start, Instant.now());
         return Result.builder()
             .setTimedOut(!destroyer.cancel(true))
