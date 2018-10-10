@@ -38,9 +38,11 @@ public class CyclesDetector implements Tool {
     var result = Result.builder();
     try {
       var cycles = new ArrayList<String>();
-      detectCycles(path, cycles);
+      var messages = new ArrayList<String>();
+      detectCycles(path, cycles, messages);
       result.setExitCode(cycles.isEmpty() ? 0 : 1);
       result.setOutput("err", cycles);
+      result.setOutput("messages", messages);
     } catch (Exception e) {
       e.printStackTrace();
       result.setExitCode(-1);
@@ -48,10 +50,14 @@ public class CyclesDetector implements Tool {
     return result.build();
   }
 
-  private void detectCycles(Path path, List<String> cycles) throws Exception {
+  private void detectCycles(Path path, List<String> cycles, List<String> messages) {
     var configuration = Configuration.builder();
-    if (new JarFile(path.toFile()).isMultiRelease()) {
-      configuration.addArgument("--multi-release").addArgument(Runtime.version().feature());
+    try (var jar = new JarFile(path.toFile())) {
+      if (jar.isMultiRelease()) {
+        configuration.addArgument("--multi-release").addArgument(Runtime.version().feature());
+      }
+    } catch (Exception e) {
+      throw new RuntimeException("Opening jar failed: " + e);
     }
     configuration.addArgument("-verbose:class");
     configuration.addArgument(path);
@@ -92,6 +98,7 @@ public class CyclesDetector implements Tool {
         graph.addEdge(item.sourcePackage, item.targetPackage);
       } catch (CyclicEdgeException e) {
         cycles.add(item.toString());
+        messages.add(e.getMessage());
       }
     }
   }

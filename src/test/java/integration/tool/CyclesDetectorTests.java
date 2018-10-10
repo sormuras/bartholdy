@@ -37,6 +37,33 @@ class CyclesDetectorTests {
             "org.junit.jupiter.engine.execution.ConditionEvaluator -> org.junit.jupiter.engine.Constants",
             "org.junit.jupiter.engine.extension.ExtensionRegistry -> org.junit.jupiter.engine.Constants"),
         result.getOutputLines("err"));
+    assertLinesMatch(
+        List.of(
+            "Edge org.junit.jupiter.engine.descriptor->org.junit.jupiter.engine creates a cycle in graph:"
+                + "[org.junit.jupiter.engine->org.apiguardian.api,"
+                + " org.junit.jupiter.engine->org.junit.jupiter.engine.descriptor,"
+                + " org.junit.jupiter.engine->org.junit.jupiter.engine.discovery,"
+                + " org.junit.jupiter.engine->org.junit.jupiter.engine.execution,"
+                + " org.junit.jupiter.engine->org.junit.platform.engine,"
+                + " org.junit.jupiter.engine->org.junit.platform.engine.support.config,"
+                + " org.junit.jupiter.engine->org.junit.platform.engine.support.hierarchical,"
+                + " org.junit.jupiter.engine.descriptor->org.apiguardian.api,"
+                + " org.junit.jupiter.engine.descriptor->org.junit.jupiter.api,"
+                + " org.junit.jupiter.engine.descriptor->org.junit.jupiter.api.extension,"
+                + " org.junit.jupiter.engine.descriptor->org.junit.jupiter.api.function,"
+                + " org.junit.jupiter.engine.descriptor->org.junit.jupiter.api.parallel,"
+                + " org.junit.jupiter.engine.descriptor->org.junit.jupiter.engine.execution,"
+                + " org.junit.jupiter.engine.descriptor->org.junit.jupiter.engine.extension,"
+                + " org.junit.jupiter.engine.descriptor->org.junit.platform.commons,"
+                + " org.junit.jupiter.engine.descriptor->org.junit.platform.commons.logging,"
+                + " org.junit.jupiter.engine.descriptor->org.junit.platform.commons.util,"
+                + " org.junit.jupiter.engine.descriptor->org.junit.platform.engine,"
+                + " org.junit.jupiter.engine.descriptor->org.junit.platform.engine.reporting,"
+                + " org.junit.jupiter.engine.descriptor->org.junit.platform.engine.support.descriptor,"
+                + " org.junit.jupiter.engine.descriptor->org.junit.platform.engine.support.hierarchical"
+                + "]",
+            ">> 3 // 'bad' edges >>"),
+        result.getOutputLines("messages"));
   }
 
   private static Path jar(String name) {
