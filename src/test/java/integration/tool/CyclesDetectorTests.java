@@ -16,12 +16,12 @@ class CyclesDetectorTests {
 
   @Test
   void analyze_ASM_4_1() {
-    new CyclesDetector(jar("asm-4.1")).run();
+    assertEquals(0, new CyclesDetector(jar("asm-4.1")).run());
   }
 
   @Test
   void analyze_JUnit_Platform_Commons_1_3_1() {
-    new CyclesDetector(jar("junit-platform-commons-1.3.1")).run();
+    assertEquals(0, new CyclesDetector(jar("junit-platform-commons-1.3.1")).run());
   }
 
   @Test
