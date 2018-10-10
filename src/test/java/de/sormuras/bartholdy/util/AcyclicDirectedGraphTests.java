@@ -1,5 +1,6 @@
 package de.sormuras.bartholdy.util;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
@@ -65,10 +66,17 @@ class AcyclicDirectedGraphTests {
   }
 
   @Test
-  void islands() {
+  void ab_cd_bc() {
     var graph = buildGraph(List.of("AB", "CD")); // "A -> B  C -> D"
-    graph.addEdge("B", "C");
+    assertDoesNotThrow(() -> graph.addEdge("B", "C"));
     assertThrows(CyclicEdgeException.class, () -> graph.addEdge("D", "A"));
+  }
+
+  @Test
+  void ab_cd_cb_da() {
+    var graph = buildGraph(List.of("AB", "CD", "CB")); // "A -> B <- C -> D"
+    assertDoesNotThrow(() -> graph.addEdge("D", "A"));
+    assertThrows(CyclicEdgeException.class, () -> graph.addEdge("B", "D"));
   }
 
   AcyclicDirectedGraph buildGraph(List<String> edges) {

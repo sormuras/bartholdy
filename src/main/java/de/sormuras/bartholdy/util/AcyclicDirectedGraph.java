@@ -62,12 +62,10 @@ public class AcyclicDirectedGraph {
 
   static class Node extends Base<Node> {
 
-    final Set<Node> inbounds;
     final Set<Node> outbounds;
 
     Node(String id) {
       super(id);
-      this.inbounds = new TreeSet<>();
       this.outbounds = new TreeSet<>();
     }
   }
@@ -75,13 +73,11 @@ public class AcyclicDirectedGraph {
   private final Map<String, Node> nodes;
   private final Set<Edge> edges;
   private final Set<Edge> antis;
-  private final Set<Edge> banned;
 
   public AcyclicDirectedGraph(Set<String> nodeIds) {
     this.nodes = new HashMap<>();
     this.edges = new TreeSet<>();
     this.antis = new TreeSet<>();
-    this.banned = new TreeSet<>();
 
     nodeIds.forEach(id -> nodes.put(id, new Node(id)));
   }
@@ -94,7 +90,7 @@ public class AcyclicDirectedGraph {
     }
     // create edge and check if it is illegal
     var edge = new Edge(source, target);
-    if (banned.contains(edge) || antis.contains(edge)) {
+    if (antis.contains(edge)) {
       throw new CyclicEdgeException(edge, edges);
     }
     // add edge to set of "good" edges, i.e. the acyclic directed graph
@@ -106,28 +102,22 @@ public class AcyclicDirectedGraph {
     // ban anti-edge and potentially remove it from banned set
     var anti = new Edge(target, source);
     antis.add(anti);
-    banned.remove(anti);
 
     // remember node's connections
     source.outbounds.add(target);
-    target.inbounds.add(source);
 
-    // ban all other
-    var sources = new TreeSet<Node>();
-    var targets = new TreeSet<Node>();
-    walk(source, node -> node.outbounds, sources::add);
-    walk(target, node -> node.inbounds, targets::add);
-    for (var from : sources) {
-      for (var to : targets) {
-        if (from == to) {
-          continue;
-        }
-        var ban = new Edge(from, to);
-        if (antis.contains(ban)) {
-          continue;
-        }
-        banned.add(ban);
-      }
+    // find cycles...
+    for (var root : nodes.values()) {
+      walk(
+          root,
+          next -> next.outbounds,
+          current -> {
+            if (current == root) {
+              edges.remove(edge);
+              antis.remove(anti);
+              throw new CyclicEdgeException(edge, edges);
+            }
+          });
     }
   }
 
