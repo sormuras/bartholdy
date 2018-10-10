@@ -4,13 +4,12 @@ import de.sormuras.bartholdy.Configuration;
 import de.sormuras.bartholdy.Result;
 import de.sormuras.bartholdy.Tool;
 import de.sormuras.bartholdy.jdk.Jdeps;
-import de.sormuras.bartholdy.util.AcyclicDirectedGraph;
-import de.sormuras.bartholdy.util.CyclicEdgeException;
+import de.sormuras.bartholdy.util.graph.CyclesFoundException;
+import de.sormuras.bartholdy.util.graph.Graph;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
@@ -37,12 +36,9 @@ public class CyclesDetector implements Tool {
   public Result run(Configuration configuration) {
     var result = Result.builder();
     try {
-      var cycles = new ArrayList<String>();
-      var messages = new ArrayList<String>();
-      detectCycles(path, cycles, messages);
+      var cycles = detectCycles(path);
       result.setExitCode(cycles.isEmpty() ? 0 : 1);
-      result.setOutput("err", cycles);
-      result.setOutput("messages", messages);
+      result.setOutput("cycles", cycles);
     } catch (Exception e) {
       e.printStackTrace();
       result.setExitCode(-1);
@@ -50,7 +46,7 @@ public class CyclesDetector implements Tool {
     return result.build();
   }
 
-  private void detectCycles(Path path, List<String> cycles, List<String> messages) {
+  private List<String> detectCycles(Path path) {
     var configuration = Configuration.builder();
     try (var jar = new JarFile(path.toFile())) {
       if (jar.isMultiRelease()) {
@@ -76,31 +72,32 @@ public class CyclesDetector implements Tool {
             .map(String::trim)
             .collect(Collectors.toList());
 
-    var nodes = new TreeSet<String>();
     var items = new ArrayList<Item>();
     for (var line : lines) {
       var item = new Item(line);
       if (item.sourcePackage.equals(item.targetPackage)) {
         continue;
       }
-
       if (ignorePackage(item.targetPackage)) {
         continue;
       }
-      nodes.add(item.sourcePackage);
-      nodes.add(item.targetPackage);
       items.add(item);
     }
 
-    var graph = new AcyclicDirectedGraph(nodes);
+    var graph = new Graph<String>();
     for (var item : items) {
-      try {
-        graph.addEdge(item.sourcePackage, item.targetPackage);
-      } catch (CyclicEdgeException e) {
-        cycles.add(item.toString());
-        messages.add(e.getMessage());
-      }
+      var source = graph.findOrCreateNode(item.sourcePackage);
+      var target = graph.findOrCreateNode(item.targetPackage);
+      source.linkedTo(target);
     }
+
+    try {
+      graph.topologicalSort();
+    } catch (CyclesFoundException exception) {
+      return exception.getCyclesAsListOfStrings();
+    }
+
+    return List.of();
   }
 
   private static Set<String> IGNORE_TARGET_STARTING_WITH = Set.of("java.", "javax.");
