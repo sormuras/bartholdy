@@ -4,14 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 
-class AcyclicDirectedGraphTests {
+class DirectedAcyclicGraphTests {
 
   @TestFactory
   Stream<DynamicTest> acyclic() {
@@ -50,43 +49,37 @@ class AcyclicDirectedGraphTests {
             list ->
                 dynamicTest(
                     list.toString(),
-                    () -> assertThrows(CyclicEdgeException.class, () -> buildGraph(list))));
+                    () -> assertThrows(CycleDetectedException.class, () -> buildGraph(list))));
   }
 
   @Test
   void ab_bc_ca() {
     var graph = buildGraph(List.of("AB", "BC")); // "A -> B", "A -> B -> C"
-    assertThrows(CyclicEdgeException.class, () -> graph.addEdge("C", "A"));
+    assertThrows(CycleDetectedException.class, () -> graph.addEdge("C", "A"));
   }
 
   @Test
   void bc_ab_ca() {
     var graph = buildGraph(List.of("BC", "AB")); // "B -> C", "A -> B -> C"
-    assertThrows(CyclicEdgeException.class, () -> graph.addEdge("C", "A"));
+    assertThrows(CycleDetectedException.class, () -> graph.addEdge("C", "A"));
   }
 
   @Test
-  void ab_cd_bc() {
+  void ab_cd_bc_da() {
     var graph = buildGraph(List.of("AB", "CD")); // "A -> B  C -> D"
     assertDoesNotThrow(() -> graph.addEdge("B", "C"));
-    assertThrows(CyclicEdgeException.class, () -> graph.addEdge("D", "A"));
+    assertThrows(CycleDetectedException.class, () -> graph.addEdge("D", "A"));
   }
 
   @Test
-  void ab_cd_cb_da() {
+  void ab_cd_cb_da_bd() {
     var graph = buildGraph(List.of("AB", "CD", "CB")); // "A -> B <- C -> D"
     assertDoesNotThrow(() -> graph.addEdge("D", "A"));
-    assertThrows(CyclicEdgeException.class, () -> graph.addEdge("B", "D"));
+    assertThrows(CycleDetectedException.class, () -> graph.addEdge("B", "D"));
   }
 
-  AcyclicDirectedGraph buildGraph(List<String> edges) {
-    var labels = new HashSet<String>();
-    for (var edge : edges) {
-      for (char ch : edge.toCharArray()) {
-        labels.add("" + ch);
-      }
-    }
-    var graph = new AcyclicDirectedGraph(labels);
+  DirectedAcyclicGraph buildGraph(List<String> edges) {
+    var graph = new DirectedAcyclicGraph();
     for (var edge : edges) {
       graph.addEdge("" + edge.charAt(0), "" + edge.charAt(1));
     }

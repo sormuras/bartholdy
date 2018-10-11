@@ -4,8 +4,8 @@ import de.sormuras.bartholdy.Configuration;
 import de.sormuras.bartholdy.Result;
 import de.sormuras.bartholdy.Tool;
 import de.sormuras.bartholdy.jdk.Jdeps;
-import de.sormuras.bartholdy.util.graph.CyclesFoundException;
-import de.sormuras.bartholdy.util.graph.Graph;
+import de.sormuras.bartholdy.util.CycleDetectedException;
+import de.sormuras.bartholdy.util.DirectedAcyclicGraph;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +29,7 @@ public class CyclesDetector implements Tool {
 
   @Override
   public String getVersion() {
-    return "1.0";
+    return "1.1";
   }
 
   @Override
@@ -84,20 +84,16 @@ public class CyclesDetector implements Tool {
       items.add(item);
     }
 
-    var graph = new Graph<String>();
+    var graph = new DirectedAcyclicGraph();
+    var cycles = new ArrayList<String>();
     for (var item : items) {
-      var source = graph.findOrCreateNode(item.sourcePackage);
-      var target = graph.findOrCreateNode(item.targetPackage);
-      source.linkedTo(target);
+      try {
+        graph.addEdge(item.sourcePackage, item.targetPackage);
+      } catch (CycleDetectedException exception) {
+        cycles.add(String.format("Adding edge '%s' failed. %s", item, exception.getMessage()));
+      }
     }
-
-    try {
-      graph.topologicalSort();
-    } catch (CyclesFoundException exception) {
-      return exception.getCyclesAsListOfStrings();
-    }
-
-    return List.of();
+    return cycles;
   }
 
   private static Set<String> IGNORE_TARGET_STARTING_WITH = Set.of("java.", "javax.");

@@ -32,11 +32,10 @@ class CyclesDetectorTests {
     assertEquals(1, result.getExitCode());
     assertLinesMatch(
         List.of(
-            "org.junit.jupiter.engine.discovery"
-                + " -> org.junit.jupiter.engine.extension"
-                + " -> org.junit.jupiter.engine.execution"
-                + " -> org.junit.jupiter.engine.descriptor"
-                + " -> org.junit.jupiter.engine"),
+            "Adding edge 'org.junit.jupiter.engine.descriptor.TestInstanceLifecycleUtils -> org.junit.jupiter.engine.Constants' failed. Cycle detected: Anti-edge: org.junit.jupiter.engine.descriptor <-> org.junit.jupiter.engine",
+            "Adding edge 'org.junit.jupiter.engine.discovery.JavaElementsResolver -> org.junit.jupiter.engine.JupiterTestEngine' failed. Cycle detected: Anti-edge: org.junit.jupiter.engine.discovery <-> org.junit.jupiter.engine",
+            "Adding edge 'org.junit.jupiter.engine.execution.ConditionEvaluator -> org.junit.jupiter.engine.Constants' failed. Cycle detected: Anti-edge: org.junit.jupiter.engine.execution <-> org.junit.jupiter.engine",
+            "Adding edge 'org.junit.jupiter.engine.extension.ExtensionRegistry -> org.junit.jupiter.engine.Constants' failed. Cycle detected: From org.junit.jupiter.engine.extension over [org.junit.jupiter.engine, org.junit.jupiter.engine.descriptor] and org.junit.jupiter.engine.execution back to org.junit.jupiter.engine.extension"),
         result.getOutputLines("cycles"));
   }
 
