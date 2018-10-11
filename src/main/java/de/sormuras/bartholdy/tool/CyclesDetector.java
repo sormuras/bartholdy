@@ -8,8 +8,8 @@ import de.sormuras.bartholdy.util.CycleDetectedException;
 import de.sormuras.bartholdy.util.DirectedAcyclicGraph;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.Arrays;
+import java.util.function.BiPredicate;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
@@ -17,9 +17,15 @@ import java.util.stream.Collectors;
 public class CyclesDetector implements Tool {
 
   private final Path path;
+  private final BiPredicate<String, String> exclude;
 
   public CyclesDetector(Path path) {
+    this(path, String::equals);
+  }
+
+  public CyclesDetector(Path path, BiPredicate<String, String> exclude) {
     this.path = path;
+    this.exclude = exclude;
   }
 
   @Override
@@ -29,42 +35,46 @@ public class CyclesDetector implements Tool {
 
   @Override
   public String getVersion() {
-    return "1.1";
+    return "1.2";
   }
 
   @Override
   public Result run(Configuration configuration) {
     var result = Result.builder();
     try {
-      var cycles = detectCycles(path);
-      result.setExitCode(cycles.isEmpty() ? 0 : 1);
-      result.setOutput("cycles", cycles);
+      detectCycles(result, path);
+      result.setExitCode(result.getOutputLines("cycles").isEmpty() ? 0 : 1);
     } catch (Exception e) {
-      e.printStackTrace();
       result.setExitCode(-1);
+      result.setOutput("out", e.toString());
+      result.setOutput(
+          "err",
+          Arrays.stream(e.getStackTrace()).map(Object::toString).collect(Collectors.toList()));
     }
     return result.build();
   }
 
-  private List<String> detectCycles(Path path) {
-    var configuration = Configuration.builder();
+  private void detectCycles(Result.Builder result, Path path) {
+    // prepare and run "jdeps" for the JAR...
+    var dependenciesConfiguration = Configuration.builder();
     try (var jar = new JarFile(path.toFile())) {
       if (jar.isMultiRelease()) {
-        configuration.addArgument("--multi-release").addArgument(Runtime.version().feature());
+        var version = Runtime.version().feature();
+        dependenciesConfiguration.addArgument("--multi-release").addArgument(version);
       }
     } catch (Exception e) {
       throw new RuntimeException("Opening jar failed: " + e);
     }
-    configuration.addArgument("-verbose:class");
-    configuration.addArgument(path);
-
-    var result = new Jdeps().run(configuration.build());
-    if (result.getExitCode() != 0) {
-      throw new RuntimeException("Running jdeps failed: " + result);
+    dependenciesConfiguration.addArgument("-verbose:class");
+    dependenciesConfiguration.addArgument(path);
+    var dependencies = new Jdeps().run(dependenciesConfiguration.build());
+    if (dependencies.getExitCode() != 0) {
+      throw new RuntimeException("Running jdeps failed: " + dependencies);
     }
 
+    // extract lines with class-level references...
     var lines =
-        result
+        dependencies
             .getOutputLines("out")
             .stream()
             .filter(line -> line.startsWith("   "))
@@ -72,31 +82,40 @@ public class CyclesDetector implements Tool {
             .map(String::trim)
             .collect(Collectors.toList());
 
+    if (lines.isEmpty()) {
+      return;
+    }
+
+    // parse each line and test against user-defined predicate...
     var items = new ArrayList<Item>();
     for (var line : lines) {
       var item = new Item(line);
-      if (item.sourcePackage.equals(item.targetPackage)) {
-        continue;
-      }
-      if (ignorePackage(item.targetPackage)) {
+      if (exclude.test(item.sourcePackage, item.targetPackage)) {
         continue;
       }
       items.add(item);
     }
 
+    if (items.isEmpty()) {
+      return;
+    }
+
     var graph = new DirectedAcyclicGraph();
     var cycles = new ArrayList<String>();
+    var edges = new ArrayList<String>();
     for (var item : items) {
       try {
-        graph.addEdge(item.sourcePackage, item.targetPackage);
+        if (graph.addEdge(item.sourcePackage, item.targetPackage)) {
+          edges.add(item.sourcePackage + " -> " + item.targetPackage);
+        }
       } catch (CycleDetectedException exception) {
         cycles.add(String.format("Adding edge '%s' failed. %s", item, exception.getMessage()));
       }
     }
-    return cycles;
+    result.setOutput("items", items.stream().map(Object::toString).collect(Collectors.toList()));
+    result.setOutput("edges", edges);
+    result.setOutput("cycles", cycles);
   }
-
-  private static Set<String> IGNORE_TARGET_STARTING_WITH = Set.of("java.", "javax.");
 
   private static String classNameOf(String raw) {
     raw = raw.trim();
@@ -116,15 +135,6 @@ public class CyclesDetector implements Tool {
       return "";
     }
     return className.substring(0, indexOfLastDot);
-  }
-
-  private static boolean ignorePackage(String className) {
-    for (var prefix : IGNORE_TARGET_STARTING_WITH) {
-      if (className.startsWith(prefix)) {
-        return true;
-      }
-    }
-    return false;
   }
 
   private static class Item {

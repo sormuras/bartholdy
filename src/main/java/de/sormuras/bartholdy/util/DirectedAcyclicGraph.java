@@ -36,7 +36,7 @@ public class DirectedAcyclicGraph {
     this.nodes = new HashMap<>();
   }
 
-  public void addEdge(String sourceId, String targetId) {
+  public boolean addEdge(String sourceId, String targetId) {
     // trivial cycle check
     if (sourceId.equals(targetId)) {
       throw new CycleDetectedException("Same node: " + sourceId + " == " + targetId);
@@ -48,6 +48,10 @@ public class DirectedAcyclicGraph {
 
     // detect potential cycle when no new node was created
     if (nodes.size() == before) {
+      // edge already here...
+      if (source.next.contains(target)) {
+        return false;
+      }
       // find direct cycle...
       if (target.next.contains(source)) {
         throw new CycleDetectedException("Anti-edge: " + source + " <-> " + target);
@@ -57,6 +61,7 @@ public class DirectedAcyclicGraph {
     }
     // remember node's connections
     source.next.add(target);
+    return true;
   }
 
   private void walk(Node source, Node root, List<Node> path) {
