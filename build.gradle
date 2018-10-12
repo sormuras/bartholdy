@@ -1,6 +1,6 @@
 plugins {
     id 'java-library'
-    id 'com.gradle.build-scan' version '1.15.2'
+    id 'com.gradle.build-scan' version '1.16'
     id 'org.shipkit.java' version '2.0.31'
     id 'com.github.sherter.google-java-format' version '0.7.1'
     id 'com.github.ben-manes.versions' version '0.20.0'
@@ -18,6 +18,10 @@ dependencies {
     testCompile "org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}"
     testRuntime "org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}"
     testRuntime "de.sormuras:brahms:${sormurasBrahmsVersion}"
+}
+
+compileJava {
+    options.compilerArgs.addAll(['--release', '10'])
 }
 
 javadoc {
