@@ -21,7 +21,7 @@ dependencies {
 }
 
 compileJava {
-    options.compilerArgs.addAll(['--release', '10'])
+    options.compilerArgs.addAll(['--release', '11'])
 }
 
 javadoc {
