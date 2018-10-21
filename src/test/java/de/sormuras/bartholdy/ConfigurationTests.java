@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertLinesMatch;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -27,8 +27,8 @@ class ConfigurationTests {
     assertEquals(List.of(), cfg.getArguments());
     assertEquals(Map.of(), cfg.getEnvironment());
     assertEquals(Duration.ofSeconds(9), cfg.getTimeout());
-    assertEquals(Paths.get(System.getProperty("java.io.tmpdir")), cfg.getTemporaryDirectory());
-    assertEquals(Paths.get(".").normalize().toAbsolutePath(), cfg.getWorkingDirectory());
+    assertEquals(Path.of(System.getProperty("java.io.tmpdir")), cfg.getTemporaryDirectory());
+    assertEquals(Path.of(".").normalize().toAbsolutePath(), cfg.getWorkingDirectory());
   }
 
   @Test

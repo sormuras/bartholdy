@@ -9,7 +9,7 @@ import de.sormuras.bartholdy.Configuration;
 import de.sormuras.bartholdy.tool.Java;
 import java.io.UncheckedIOException;
 import java.nio.file.NoSuchFileException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -38,7 +38,7 @@ class JavaTests {
   void creatingArgumentsFileFailsForNonExistingTemporaryDirectory() {
     var configuration =
         longCommandLineConfigurationBuilder(4001)
-            .setTemporaryDirectory(Paths.get("folder-that-does-not-exist"))
+            .setTemporaryDirectory(Path.of("folder-that-does-not-exist"))
             .build();
     var e = assertThrows(UncheckedIOException.class, () -> new Java().run(configuration));
     assertEquals("creating temporary arguments file failed", e.getMessage());

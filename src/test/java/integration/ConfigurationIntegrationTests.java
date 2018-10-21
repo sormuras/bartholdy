@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import de.sormuras.bartholdy.Configuration;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -37,14 +37,14 @@ class ConfigurationIntegrationTests {
 
   @Test
   void temporaryDirectory() {
-    var expected = Paths.get("expected");
+    var expected = Path.of("expected");
     var configuration = Configuration.builder().setTemporaryDirectory(expected).build();
     assertSame(expected, configuration.getTemporaryDirectory());
   }
 
   @Test
   void workingDirectory() {
-    var expected = Paths.get("expected");
+    var expected = Path.of("expected");
     var configuration = Configuration.builder().setWorkingDirectory(expected).build();
     assertSame(expected, configuration.getWorkingDirectory());
   }

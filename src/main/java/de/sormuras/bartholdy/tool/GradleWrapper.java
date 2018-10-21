@@ -2,7 +2,6 @@ package de.sormuras.bartholdy.tool;
 
 import de.sormuras.bartholdy.Bartholdy;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Locale;
 
 public class GradleWrapper extends AbstractTool {
@@ -10,7 +9,7 @@ public class GradleWrapper extends AbstractTool {
   private final Path home;
 
   public GradleWrapper() {
-    this(Paths.get("."));
+    this(Path.of("."));
   }
 
   public GradleWrapper(Path home) {

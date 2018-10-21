@@ -20,7 +20,6 @@ import static java.lang.System.Logger.Level.DEBUG;
 import static java.util.Objects.requireNonNull;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,8 +59,8 @@ public interface Configuration {
     private boolean mutable = true;
     private List<String> arguments = new ArrayList<>();
     private Map<String, String> environment = new HashMap<>();
-    private Path temporaryDirectory = Paths.get(System.getProperty("java.io.tmpdir"));
-    private Path workingDirectory = Paths.get(".").normalize().toAbsolutePath();
+    private Path temporaryDirectory = Path.of(System.getProperty("java.io.tmpdir"));
+    private Path workingDirectory = Path.of(".").normalize().toAbsolutePath();
     private Duration timeout = Duration.ofSeconds(9);
 
     public Configuration build() {

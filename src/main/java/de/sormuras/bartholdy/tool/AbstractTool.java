@@ -11,7 +11,6 @@ import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -92,7 +91,7 @@ public abstract class AbstractTool implements Tool {
   }
 
   public Path getHome() {
-    return Paths.get(".");
+    return Path.of(".");
   }
 
   public String getNameOfEnvironmentHomeVariable() {

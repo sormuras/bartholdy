@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import de.sormuras.bartholdy.Configuration;
 import de.sormuras.bartholdy.tool.GoogleJavaFormat;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 
 class GoogleJavaFormatTests {
@@ -20,7 +20,7 @@ class GoogleJavaFormatTests {
   }
 
   private void version(String version) {
-    var destination = Paths.get("build", "bartholdy", "tools");
+    var destination = Path.of("build", "bartholdy", "tools");
     var tool = GoogleJavaFormat.install(version, destination);
     assertEquals("google-java-format", tool.getName());
     assertEquals("java", tool.getProgram());

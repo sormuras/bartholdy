@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import de.sormuras.bartholdy.Configuration;
 import de.sormuras.bartholdy.tool.Ant;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -34,7 +34,7 @@ class AntTests {
   }
 
   private void version(String version) {
-    var destination = Paths.get("build", "bartholdy", "tools");
+    var destination = Path.of("build", "bartholdy", "tools");
     var tool = Ant.install(version, destination);
     assertTrue(tool.getVersion().contains(version));
     assertEquals("ant", tool.getName());

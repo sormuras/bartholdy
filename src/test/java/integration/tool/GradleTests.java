@@ -9,7 +9,7 @@ import de.sormuras.bartholdy.Tool;
 import de.sormuras.bartholdy.tool.Gradle;
 import de.sormuras.bartholdy.tool.GradleWrapper;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -32,7 +32,7 @@ class GradleTests {
   }
 
   private void version(String version) {
-    var destination = Paths.get("build", "bartholdy", "tools");
+    var destination = Path.of("build", "bartholdy", "tools");
     var tool = Gradle.install(version, destination);
     assertEquals("gradle", tool.getName());
     assertTrue(Files.isDirectory(tool.getHome()));

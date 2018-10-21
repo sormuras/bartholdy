@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -47,7 +46,7 @@ class ReflectorTests {
           Collection<?> emptyCollectionsIsSkipped = Set.of();
 
           List<String> collection = List.of("a", "b", "c");
-          Set<Path> paths = Set.of(Paths.get("path"));
+          Set<Path> paths = Set.of(Path.of("path"));
 
           void hex(Reflector reflector) {
             reflector.add("--prime-as-hex");
@@ -60,7 +59,7 @@ class ReflectorTests {
             options, fields -> fields.sorted(comparing(Field::getName)), actualLines::add);
     reflector.reflect();
     reflector.add(Stream.of(1, 2, 3), "+");
-    reflector.add(List.of(Paths.get("p"), Paths.get("q")));
+    reflector.add(List.of(Path.of("p"), Path.of("q")));
     reflector.add("final");
 
     assertLinesMatch(

@@ -8,7 +8,6 @@ import de.sormuras.bartholdy.Configuration;
 import de.sormuras.bartholdy.tool.CyclesDetector;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -87,7 +86,7 @@ class CyclesDetectorTests {
 
   private static Path jar(String name) {
     try {
-      return Paths.get(CyclesDetectorTests.class.getResource("/jars/" + name + ".jar").toURI());
+      return Path.of(CyclesDetectorTests.class.getResource("/jars/" + name + ".jar").toURI());
     } catch (URISyntaxException e) {
       return fail("Failed to create path for: " + name, e);
     }

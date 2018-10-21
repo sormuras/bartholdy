@@ -11,7 +11,6 @@ import java.nio.channels.Channels;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.spi.ToolProvider;
 
@@ -24,7 +23,7 @@ public final class Bartholdy {
   }
 
   public static Path currentJdkHome() {
-    var executable = ProcessHandle.current().info().command().map(Paths::get).orElseThrow();
+    var executable = ProcessHandle.current().info().command().map(Path::of).orElseThrow();
     // path element count is 3 or higher: "<JAVA_HOME>/bin/java[.exe]"
     return executable.getParent().getParent().toAbsolutePath();
   }
@@ -71,7 +70,7 @@ public final class Bartholdy {
       var printWriter = new PrintWriter(listing);
       jarTool.run(printWriter, printWriter, "--list", "--file", localZip.toString());
       // TODO Find better way to extract root folder name...
-      var root = Paths.get(listing.toString().split("\\R")[0]);
+      var root = Path.of(listing.toString().split("\\R")[0]);
       var home = tools.resolve(root);
       if (Files.notExists(home)) {
         jarTool.run(System.out, System.err, "--extract", "--file", localZip.toString());

@@ -6,7 +6,6 @@ import de.sormuras.bartholdy.Bartholdy;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Locale;
 
 /** Maven. */
@@ -28,7 +27,7 @@ public class Maven extends AbstractTool {
     if (!Files.isDirectory(home)) {
       throw new IllegalArgumentException("not a directory: " + home);
     }
-    if (!Files.isRegularFile(home.resolve(Paths.get("bin", "mvn")))) {
+    if (!Files.isRegularFile(home.resolve(Path.of("bin", "mvn")))) {
       throw new IllegalArgumentException("`bin/mvn` launch script not found in: " + home);
     }
     this.version = "TODO";

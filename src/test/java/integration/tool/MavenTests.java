@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import de.sormuras.bartholdy.Configuration;
 import de.sormuras.bartholdy.tool.Maven;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +24,7 @@ class MavenTests {
   }
 
   private void version(String version) {
-    var destination = Paths.get("build", "bartholdy", "tools");
+    var destination = Path.of("build", "bartholdy", "tools");
     var tool = Maven.install(version, destination);
     // assertTrue(tool.getVersion().contains(version));
     assertEquals("maven", tool.getName());

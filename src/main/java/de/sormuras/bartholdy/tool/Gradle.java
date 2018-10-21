@@ -6,7 +6,6 @@ import de.sormuras.bartholdy.Bartholdy;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Locale;
 
 /** Gradle. */
@@ -27,7 +26,7 @@ public class Gradle extends AbstractTool {
     if (!Files.isDirectory(home)) {
       throw new IllegalArgumentException("not a directory: " + home);
     }
-    if (!Files.isRegularFile(home.resolve(Paths.get("bin", "gradle")))) {
+    if (!Files.isRegularFile(home.resolve(Path.of("bin", "gradle")))) {
       throw new IllegalArgumentException("`bin/gradle` launch script not found in: " + home);
     }
     this.version = "TODO";
