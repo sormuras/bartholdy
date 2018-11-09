@@ -4,10 +4,10 @@ import de.sormuras.bartholdy.Bartholdy;
 import de.sormuras.bartholdy.Configuration;
 import de.sormuras.bartholdy.Result;
 import de.sormuras.bartholdy.Tool;
+
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,16 +15,12 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 public abstract class AbstractTool implements Tool {
 
   @Override
   public Result run(Configuration configuration) {
-    var outLines = new ArrayList<String>();
-    var errLines = new ArrayList<String>();
     var timeout = configuration.getTimeout().toMillis();
     var command = createCommand(configuration);
     var builder = new ProcessBuilder(command);
@@ -33,31 +29,32 @@ public abstract class AbstractTool implements Tool {
     builder.environment().put(getNameOfEnvironmentHomeVariable(), getHome().toString());
     builder.environment().putAll(configuration.getEnvironment());
     try {
+      var errfile = Files.createTempFile("bartholdy-err-", ".txt");
+      var outfile = Files.createTempFile("bartholdy-out-", ".txt");
+      builder.redirectError(errfile.toFile());
+      builder.redirectOutput(outfile.toFile());
       var start = Instant.now();
       var process = builder.start();
-      var executor = Executors.newScheduledThreadPool(3);
-      try (var inputStream = process.getInputStream();
-          var errorStream = process.getErrorStream()) {
-        var outFuture = executor.submit(new StreamGobbler(inputStream, outLines::add));
-        var errFuture = executor.submit(new StreamGobbler(errorStream, errLines::add));
-        var destroyer = executor.schedule(process::destroy, timeout, TimeUnit.MILLISECONDS);
-        process.waitFor();
-        outFuture.cancel(false);
-        errFuture.cancel(false);
+      try {
+        var timedOut = false;
+        if (!process.waitFor(timeout, TimeUnit.MILLISECONDS)) {
+          timedOut = true;
+          process.destroy();
+        }
         var duration = Duration.between(start, Instant.now());
         return Result.builder()
-            .setTimedOut(!destroyer.cancel(true))
+            .setTimedOut(timedOut)
             .setExitCode(process.exitValue())
             .setDuration(duration)
-            .setOutput("out", outLines)
-            .setOutput("err", errLines)
+            .setOutput("err", readAllLines(errfile))
+            .setOutput("out", readAllLines(outfile))
             .build();
-
       } catch (InterruptedException e) {
         throw new RuntimeException("run failed", e);
       } finally {
-        process.destroy();
-        executor.shutdownNow();
+
+        Files.deleteIfExists(errfile);
+        Files.deleteIfExists(outfile);
       }
     } catch (IOException e) {
       throw new UncheckedIOException("starting process failed", e);
@@ -110,17 +107,20 @@ public abstract class AbstractTool implements Tool {
     return List.of();
   }
 
-  static class StreamGobbler implements Runnable {
-    private InputStream inputStream;
-    private Consumer<String> consumeInputLine;
-
-    StreamGobbler(InputStream inputStream, Consumer<String> consumeInputLine) {
-      this.inputStream = inputStream;
-      this.consumeInputLine = consumeInputLine;
+  private static List<String> readAllLines(Path path) {
+    try {
+      return Files.readAllLines(path);
+    } catch (IOException e) {
+      // ignore
     }
-
-    public void run() {
-      new BufferedReader(new InputStreamReader(inputStream)).lines().forEach(consumeInputLine);
+    var lines = new ArrayList<String>();
+    try (BufferedReader br = new BufferedReader(new FileReader(path.toFile()))) {
+      for (String line; (line = br.readLine()) != null; ) {
+        lines.add(line);
+      }
+    } catch (IOException e) {
+      throw new UncheckedIOException("reading lines failed: " + path, e);
     }
+    return lines;
   }
 }
