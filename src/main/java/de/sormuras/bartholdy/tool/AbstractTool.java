@@ -4,7 +4,6 @@ import de.sormuras.bartholdy.Bartholdy;
 import de.sormuras.bartholdy.Configuration;
 import de.sormuras.bartholdy.Result;
 import de.sormuras.bartholdy.Tool;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
