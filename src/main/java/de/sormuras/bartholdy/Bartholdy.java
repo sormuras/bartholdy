@@ -1,5 +1,6 @@
 package de.sormuras.bartholdy;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -11,8 +12,14 @@ import java.nio.channels.Channels;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.Properties;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.spi.ToolProvider;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class Bartholdy {
 
@@ -121,6 +128,98 @@ public final class Bartholdy {
       LOG.log(System.Logger.Level.WARNING, "couldn't set executable flag: " + program);
     }
     return path;
+  }
+
+  /** Copy source directory to target directory. */
+  public static void treeCopy(Path source, Path target) {
+    treeCopy(source, target, __ -> true);
+  }
+
+  /** Copy source directory to target directory. */
+  public static void treeCopy(Path source, Path target, Predicate<Path> filter) {
+    LOG.log(System.Logger.Level.DEBUG, "treeCopy(source:`{0}`, target:`{1}`)", source, target);
+    if (!Files.exists(source)) {
+      return;
+    }
+    if (!Files.isDirectory(source)) {
+      throw new IllegalArgumentException("source must be a directory: " + source);
+    }
+    if (Files.exists(target)) {
+      if (!Files.isDirectory(target)) {
+        throw new IllegalArgumentException("target must be a directory: " + target);
+      }
+      try {
+        if (Files.isSameFile(source, target)) {
+          return;
+        }
+      } catch (IOException e) {
+        throw new UncheckedIOException("copyTree failed", e);
+      }
+    }
+    try (Stream<Path> stream = Files.walk(source).sorted()) {
+      int counter = 0;
+      List<Path> paths = stream.collect(Collectors.toList());
+      for (Path path : paths) {
+        Path destination = target.resolve(source.relativize(path));
+        if (Files.isDirectory(path)) {
+          Files.createDirectories(destination);
+          continue;
+        }
+        if (filter.test(path)) {
+          Files.copy(path, destination, StandardCopyOption.REPLACE_EXISTING);
+          counter++;
+        }
+      }
+      LOG.log(
+          System.Logger.Level.DEBUG,
+          "copied {0} file(s) of {1} elements...%n",
+          counter,
+          paths.size());
+    } catch (IOException e) {
+      throw new UncheckedIOException("copyTree failed", e);
+    }
+  }
+
+  /** Delete directory. */
+  public static void treeDelete(Path root) {
+    treeDelete(root, path -> true);
+  }
+
+  /** Delete selected files and directories from the root directory. */
+  public static void treeDelete(Path root, Predicate<Path> filter) {
+    // simple case: delete existing single file or empty directory right away
+    try {
+      if (Files.deleteIfExists(root)) {
+        return;
+      }
+    } catch (IOException ignored) {
+      // fall-through
+    }
+    // default case: walk the tree...
+    try (var stream = Files.walk(root)) {
+      var selected = stream.filter(filter).sorted((p, q) -> -p.compareTo(q));
+      for (var path : selected.collect(Collectors.toList())) {
+        Files.deleteIfExists(path);
+      }
+    } catch (IOException e) {
+      throw new UncheckedIOException("removing tree failed: " + root, e);
+    }
+  }
+
+  /** List directory tree structure. */
+  public static void treeList(Path root, Consumer<String> out) {
+    if (Files.exists(root)) {
+      out.accept(root.toString());
+    }
+    try (Stream<Path> stream = Files.walk(root).sorted()) {
+      for (Path path : stream.collect(Collectors.toList())) {
+        String string = root.relativize(path).toString();
+        String prefix = string.isEmpty() ? "" : File.separator;
+        out.accept("." + prefix + string);
+      }
+    } catch (IOException e) {
+      throw new UncheckedIOException("dumping tree failed: " + root, e);
+    }
   }
 
   public static String version() {
