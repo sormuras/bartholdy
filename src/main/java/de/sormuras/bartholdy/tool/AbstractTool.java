@@ -41,6 +41,20 @@ public abstract class AbstractTool implements Tool {
         if (!process.waitFor(timeout, TimeUnit.MILLISECONDS)) {
           timedOut = true;
           process.destroy();
+          // give process a second to terminate normally
+          for (int i = 10; i > 0 && process.isAlive(); i--) {
+            Thread.sleep(123);
+          }
+          // if the process is still alive, kill it
+          if (process.isAlive()) {
+            process.destroyForcibly();
+            for (int i = 10; i > 0 && process.isAlive(); i--) {
+              Thread.sleep(1234);
+            }
+          }
+        }
+        if (process.isAlive()) {
+          throw new RuntimeException("process is still alive: " + process.info());
         }
         var duration = Duration.between(start, Instant.now());
         return Result.builder()
