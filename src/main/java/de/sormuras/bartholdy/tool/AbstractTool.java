@@ -23,16 +23,18 @@ public abstract class AbstractTool implements Tool {
     var timeout = configuration.getTimeout().toMillis();
     var command = createCommand(configuration);
     var builder = new ProcessBuilder(command);
-    builder.directory(configuration.getWorkingDirectory().toFile());
+    var working = configuration.getWorkingDirectory();
+    builder.directory(working.toFile());
     builder.environment().put("JAVA_HOME", Bartholdy.currentJdkHome().toString());
     builder.environment().put(getNameOfEnvironmentHomeVariable(), getHome().toString());
     builder.environment().putAll(configuration.getEnvironment());
     try {
-      var errfile = Files.createTempFile("bartholdy-err-", ".txt");
-      var outfile = Files.createTempFile("bartholdy-out-", ".txt");
+      var start = Instant.now();
+      var timestamp = start.toString().replace(':', '-');
+      var errfile = working.resolve(".bartholdy-err-" + timestamp + ".txt");
+      var outfile = working.resolve(".bartholdy-out-" + timestamp + ".txt");
       builder.redirectError(errfile.toFile());
       builder.redirectOutput(outfile.toFile());
-      var start = Instant.now();
       var process = builder.start();
       try {
         var timedOut = false;
@@ -51,7 +53,6 @@ public abstract class AbstractTool implements Tool {
       } catch (InterruptedException e) {
         throw new RuntimeException("run failed", e);
       } finally {
-
         Files.deleteIfExists(errfile);
         Files.deleteIfExists(outfile);
       }
