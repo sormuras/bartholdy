@@ -15,8 +15,7 @@ repositories {
 }
 
 dependencies {
-    testCompile "org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}"
-    testRuntime "org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}"
+    testCompile "org.junit.jupiter:junit-jupiter:${junitJupiterVersion}"
     testRuntime "de.sormuras:brahms:${sormurasBrahmsVersion}"
 }
 
