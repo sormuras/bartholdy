@@ -53,10 +53,10 @@ class GradleTests {
             "------------------------------------------------------------",
             "",
             "Build time:   .+ .+ UTC",
-            "Revision:     .*",
+            "Revision:     .+",
             ">> blank line, Kotlin, etc... >>",
-            "Groovy:       2.4...",
-            "Ant:          Apache Ant(TM) version 1.9.11 compiled on March 23 2018",
+            "Groovy:       2.+",
+            "\\QAnt:          Apache Ant(TM) version \\E1.9.+",
             "JVM:          .+",
             "OS:           .+",
             "");
