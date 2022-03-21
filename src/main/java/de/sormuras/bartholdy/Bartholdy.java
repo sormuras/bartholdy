@@ -54,8 +54,9 @@ public final class Bartholdy {
     try {
       var rbc = Channels.newChannel(uri.toURL().openStream());
       Files.createDirectories(tools);
-      var fos = new FileOutputStream(localPath.toFile());
-      fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+      try (var fos = new FileOutputStream(localPath.toFile())) {
+        fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+      }
       return localPath;
     } catch (IOException e) {
       throw new UncheckedIOException("download failed", e);
